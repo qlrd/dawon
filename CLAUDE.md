@@ -95,16 +95,50 @@ fuzz/
 
 ## Conventions
 
-- Format: `cargo fmt`
-- Lint: `cargo clippy -- -D warnings` — zero warnings allowed
+### Rust
+
+- Run `cargo fmt` before every commit; run `cargo clippy -- -D warnings`
+  — zero warnings allowed
+- All `pub` items must have a `///` doc comment; modules use `//!`
+- Place attributes (`#[derive(…)]`) **before** the doc comment
+- Leave an empty line between struct fields, `impl` methods, and
+  top-level items
+- Only expose `pub` what genuinely belongs in the public API;
+  prefer `pub(crate)` for cross-module internals
+- Use distinct error variants — avoid generic catch-all errors
 - New checks: add `src/checks/<name>.rs`, export in
   `src/checks/mod.rs`, wire in `src/eval.rs`
 - New subjects: add `src/subjects/<module>.rs`, export in
   `src/subjects/mod.rs`, add test vectors with strict edge cases
+
+### Python
+
+- Follow PEP 8; use `"""docstrings"""` on all public functions and
+  classes; add type hints to all function signatures
+- Leave an empty line between top-level definitions and between
+  methods inside a class
+- Catch specific exception types — no bare `except:`
+
+### General
+
 - Commit messages follow Conventional Commits 1.0.0,
   subject line must not exceed 72 characters
 - Prose (comments, docs, Markdown) wraps at 72 characters
 - No unnecessary dependencies — prefer `std` where possible
+- Do not mix formatting-only changes with logic changes in one commit
+
+## Pull request discipline
+
+Keep each PR focused on **one concern** so a human can review it
+in a single sitting.
+
+- ≤ 400 lines changed (excluding generated/fixture files)
+- One commit type per PR (`feat`, `fix`, `docs`, …)
+- Separate code from docs; separate refactors from features
+- For large changes, split into a stack of small PRs:
+  skeleton → implementation → tests → documentation
+- **Always open a GitHub issue first** — label it before writing code
+  (`good first issue`, `enhancement`, `bug`, `docs`, etc.)
 
 ## Commit message format
 

@@ -6,8 +6,44 @@ Thank you for contributing to Dawon.
 
 ## Before you start
 
-Open an issue to discuss significant changes before writing code.
-For small fixes (typos, obvious bugs) a direct pull request is fine.
+**Always open an issue before writing code**, even for small changes.
+This lets maintainers prioritise the backlog, avoid duplicate work,
+and assign the right labels before anyone spends time on a PR.
+
+The only exception is a one-line typo fix where the intent is
+completely unambiguous.
+
+---
+
+## Issue labels
+
+Use labels when opening an issue so it can be triaged and
+prioritised immediately.
+
+| Label | When to use |
+|-------|-------------|
+| `good first issue` | Self-contained, well-scoped, newcomer-friendly |
+| `bug` | Something is broken or produces wrong output |
+| `enhancement` | New feature or improvement to existing behaviour |
+| `docs` | Documentation-only change |
+| `refactor` | Internal restructuring, no behaviour change |
+| `test` | Missing or inadequate test coverage |
+| `ci` | Workflow, justfile, or toolchain change |
+| `security` | Vulnerability or hardening concern |
+| `help wanted` | Maintainer lacks bandwidth; contributions welcome |
+| `question` | Discussion or clarification needed before work starts |
+| `blocked` | Cannot proceed until another issue/PR is resolved |
+
+**Priority is driven by labels.**  Issues tagged `good first issue`
+are the recommended entry point for new contributors.  Issues tagged
+`help wanted` are higher-priority and may already have a rough design
+in comments — read them before starting.
+
+To add or update labels, use the GitHub UI or:
+
+```bash
+gh issue edit <NUMBER> --add-label "good first issue"
+```
 
 ---
 
@@ -33,11 +69,139 @@ All tests must pass before opening a pull request.
 
 ## Code style
 
-- Format Rust code with `cargo fmt` before every commit.
-- Lint with `cargo clippy -- -D warnings`. No warnings are allowed.
+### General rules
+
 - Keep prose (comments, docs, Markdown) at or below 72 characters
   per line.
 - Do not add unnecessary dependencies. Prefer `std` where possible.
+- Do not mix formatting-only changes with logic changes in the same
+  commit. Use a `style:` commit for whitespace / formatting fixes.
+
+---
+
+### Rust formatting
+
+Run before every commit:
+
+```bash
+cargo fmt
+cargo clippy -- -D warnings
+```
+
+Zero clippy warnings are allowed.
+
+**Documentation comments**
+
+All public items (`pub struct`, `pub fn`, `pub enum`, …) must have
+a doc comment. Use `///` for items and `//!` (inner doc) for
+module-level preambles.
+
+```rust
+//! Awesome module
+//!
+//! Awesome description: I do neat things.
+//!
+//! # Example
+//!
+//! ```rust
+//! // public module → include a runnable example
+//! ```
+
+/// Awesome Foo struct
+///
+/// Here's how it works.
+pub struct Foo {
+    /// Some awesome comment
+    bar: u32,
+
+    /// Another awesome comment
+    baz: u32,
+}
+
+impl Foo {
+    /// Creates a new Foo.
+    pub fn new() -> Self {
+        todo!()
+    }
+
+    /// Does something useful.
+    pub fn some_awesome_method(&self) {
+        todo!()
+    }
+}
+```
+
+Leave an **empty line between items** — between struct fields, between
+`impl` methods, and between top-level items.
+
+**Attributes and derives**
+
+Place attributes **before** the doc comment:
+
+```rust
+#[derive(Debug, Default)]
+/// Some comment.
+enum Foo {
+    #[default]
+    /// The Bar case.
+    Bar,
+    /// The Car case.
+    Car,
+}
+```
+
+**Visibility**
+
+Only make things `pub` that genuinely need to be part of the public
+API. Prefer `pub(crate)` for items shared across modules but not
+exported to users.
+
+**Error handling**
+
+Prefer exact, meaningful error variants over generic catch-alls:
+
+```rust
+// Avoid — same error for unrelated failure modes
+return Err(MyError::Invalid);
+
+// Prefer — each failure mode has its own variant
+if condition_a {
+    return Err(MyError::TooOld);
+}
+if condition_b {
+    return Err(MyError::TooNew);
+}
+```
+
+---
+
+### Python formatting
+
+The Python test suite uses **`uv`** and **`pytest`**. Keep test
+helpers consistent with `tests/python/conftest.py`.
+
+**Docstrings** — use `"""` for all public functions and classes:
+
+```python
+"""Module description."""
+
+
+class Foo:
+    """Some awesome comment."""
+
+    def func(self) -> None:
+        """Some awesome comment."""
+        pass
+```
+
+Leave an **empty line between top-level definitions** (functions,
+classes) and between methods inside a class.
+
+**Style**
+
+- Follow [PEP 8](https://peps.python.org/pep-0008/).
+- Use type hints on all function signatures.
+- Avoid bare `except:`; catch specific exception types.
 
 ---
 
@@ -142,6 +306,31 @@ Tested locally against branch tip:
 
 If you test again after changes, use `re-tACK <sha>` with a note
 on what changed between your test runs.
+
+---
+
+## Pull request size
+
+Keep each PR small enough that a human can review it in one sitting.
+Aim for **one concern per PR**.
+
+| Rule | Rationale |
+|------|-----------|
+| ≤ 400 lines changed (excluding generated/fixture files) | Reviewers lose focus beyond that |
+| One commit type per PR (e.g. `feat` or `docs`, not both) | Makes the diff predictable |
+| Separate refactors from feature additions | Mixing intent hides bugs |
+| Separate docs-only changes from code changes | Docs can be merged faster |
+| Open an issue first for anything larger | Agree on approach before writing code |
+
+If your change is genuinely large (new module, new check pipeline),
+**split it into a stack of small PRs**, each green on CI:
+
+1. PR 1 — skeleton / types only
+2. PR 2 — implementation
+3. PR 3 — tests
+4. PR 4 — documentation
+
+Each PR in the stack must be independently reviewable and buildable.
 
 ---
 
