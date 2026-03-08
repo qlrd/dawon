@@ -15,6 +15,10 @@
 //! Protocol: for each test the harness writes to stdout —
 //!   `[4 bytes big-endian length][length bytes of captured stdout]`
 //!
+//! Capture limit: `dawon_capture` uses a 65 535-byte fixed buffer.
+//! Outputs larger than that are silently truncated; all C00–C09
+//! exercises produce far less than that.
+//!
 //! Strictness beyond mini-moulinette:
 //! - Test isolation via fork() prevents state pollution.
 //! - ASAN catches heap overflows / use-after-free.
@@ -196,8 +200,9 @@ fn compare_outputs(
 
     for tc in tests {
         if pos + 4 > stdout.len() {
+            // Once the stream is out of sync, further parsing is meaningless.
             msgs.push(format!("  ERROR  {} — truncated protocol", tc.name));
-            continue;
+            break;
         }
         let len = u32::from_be_bytes([
             stdout[pos],
@@ -209,7 +214,7 @@ fn compare_outputs(
 
         if pos + len > stdout.len() {
             msgs.push(format!("  ERROR  {} — truncated body", tc.name));
-            continue;
+            break;
         }
         let output = &stdout[pos..pos + len];
         pos += len;
