@@ -18,8 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial project scaffold.
-- `README.md` with project overview.
+- Rust evaluation core with six-layer check pipeline.
+- SHA-256 commitment-based harness (no plaintext expected bytes in source).
+- Check integrations including norminette, valgrind, and ASAN/UBSAN flows.
+- Subject and evaluation orchestration under `src/subjects/` and `src/eval.rs`.
+- Rust and Python functional test coverage.
+- CI workflows and fuzz targets (`cargo-fuzz`) for robustness checks.
 
 [Unreleased]: https://github.com/qlrd/dawon/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/qlrd/dawon/releases/tag/v0.1.0

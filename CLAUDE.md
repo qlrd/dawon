@@ -4,17 +4,24 @@ This file provides guidance to Claude (and other AI assistants) when working wit
 
 ## Project Overview
 
-**dawon** is a super mini-moulinette — a strict code checker/linter that is stricter than moulinette. It is designed to enforce coding standards with minimal configuration.
+**dawon** is a Rust-based super mini-moulinette. It evaluates subjects through a six-layer check pipeline and enforces strict invariants for deterministic grading.
 
 ## Repository Structure
 
 ```
 dawon/
-├── README.md          # Project overview and quick-start guide
-├── CLAUDE.md          # This file — AI assistant guidance
-├── CHANGELOG.md       # Version history and release notes
-├── CONTRIBUTING.md    # How to contribute to the project
-└── LICENSE            # MIT license
+├── src/
+│   ├── checks/        # Check implementations used by the pipeline
+│   ├── subjects/      # Subject definitions and metadata
+│   └── eval.rs        # Evaluation orchestration
+├── tests/
+│   └── python/        # Functional test suite
+├── fuzz/              # cargo-fuzz targets
+├── README.md
+├── CLAUDE.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+└── LICENSE
 ```
 
 ## Development Guidelines
@@ -25,17 +32,22 @@ dawon/
 - Prefer clarity over cleverness.
 - Follow the existing conventions already present in the code.
 
+### Core Invariants
+
+- **SHA-256 commitment invariant**: expected output bytes must never appear in plaintext in the source tree.
+- Keep commitments and verification logic consistent whenever subjects/checks change.
+
 ### Testing
 
-- Run all existing tests before submitting changes.
-- Add tests for any new functionality.
-- Ensure all tests pass before opening a pull request.
+- Run `just check` before every commit.
+- Run Rust and Python test suites for impacted areas.
+- Run fuzz targets with `cargo fuzz` when changing parsing/evaluation logic.
 
 ### Commits
 
-- Write clear, concise commit messages in the imperative mood (e.g., "Add feature X", "Fix bug Y").
+- Follow **Conventional Commits 1.0.0**.
 - Keep commits small and focused on a single change.
-- Reference related issues in commit messages where applicable (e.g., `Closes #42`).
+- Reference related issues where applicable (e.g., `Closes #42`).
 
 ## Common Tasks
 
@@ -47,7 +59,7 @@ Refer to [README.md](README.md) for build and run instructions.
 
 1. Fork the repository and create a feature branch.
 2. Make your changes following the guidelines above.
-3. Run tests to verify nothing is broken.
+3. Run `just check` and relevant targeted tests.
 4. Submit a pull request with a clear description of the changes.
 
 ## Notes for AI Assistants

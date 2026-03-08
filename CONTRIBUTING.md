@@ -78,17 +78,25 @@ Open an [issue](https://github.com/qlrd/dawon/issues) with the label **enhanceme
 - **No unrelated refactoring**: Only change code that is directly related to your fix or feature.
 - **Follow existing conventions**: Match the code style, naming, and patterns already present in the project.
 - **Document your changes**: Update `README.md` and `CHANGELOG.md` where applicable.
+- **Run checks before commit**: Run `just check` before every commit.
+
+### Adding a New Subject
+
+- Do not commit plaintext expected answers/output bytes.
+- Keep subject verification compatible with the SHA-256 commitment invariant.
 
 ---
 
 ## Commit Message Conventions
 
-Use the imperative mood and keep messages concise:
+This project uses **Conventional Commits 1.0.0**.
+
+Examples:
 
 ```
-Add feature X
-Fix bug Y in module Z
-Update documentation for W
+feat(checks): add timeout guard for parser
+fix(eval): handle empty input path
+docs(contributing): clarify subject commitment rules
 ```
 
 Reference issues when relevant:
