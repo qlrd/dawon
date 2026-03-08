@@ -3,7 +3,7 @@ name = "dawon"
 version = "0.1.0"
 edition = "2021"
 # Dawon is the tiger (vahana) of Mahadurga — guardian, merciless.
-description = "Dawon — super mini-moulinette, stricter than moulinette"
+description = "Dawon — super mini-moulinette, stricter than mini-moulinette"
 readme = "README.md"
 license = "MIT"
 repository = "https://github.com/qlrd/dawon"

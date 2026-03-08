@@ -35,7 +35,10 @@ in the release notes unless you prefer anonymity.
 
 ## Integrity
 
-Dawon compiles your code, runs it, and measures every byte.
+Dawon stores expected test outputs as SHA-256 commitment hashes.
+No plaintext answers appear in the source tree.
+
+It compiles your code, runs it, and measures every byte.
 
 It does not estimate. It does not negotiate.
 
