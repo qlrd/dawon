@@ -2,7 +2,8 @@
 
 Requires Python >= 3.10.12.
 The dawon binary must be compiled before running:
-    cargo build
+    cargo build              # debug build   → target/debug/dawon
+    cargo build --release    # release build → target/release/dawon
     pytest tests/python/
 """
 
@@ -13,12 +14,19 @@ from pathlib import Path
 
 import pytest
 
-# Resolve binary path: env var > debug build
+# Resolve binary path: env var > debug build > release build
 _REPO_ROOT = Path(__file__).parent.parent.parent
-DAWON_BIN = os.environ.get(
-    "DAWON_BIN",
-    str(_REPO_ROOT / "target" / "debug" / "dawon"),
-)
+_DEBUG_BIN = _REPO_ROOT / "target" / "debug" / "dawon"
+_RELEASE_BIN = _REPO_ROOT / "target" / "release" / "dawon"
+
+if "DAWON_BIN" in os.environ:
+    DAWON_BIN = os.environ["DAWON_BIN"]
+elif _DEBUG_BIN.exists():
+    DAWON_BIN = str(_DEBUG_BIN)
+elif _RELEASE_BIN.exists():
+    DAWON_BIN = str(_RELEASE_BIN)
+else:
+    DAWON_BIN = str(_DEBUG_BIN)  # canonical default for the skip message
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -29,7 +37,7 @@ def bin_path() -> str:
     if not Path(DAWON_BIN).exists():
         pytest.skip(
             f"dawon binary not found at {DAWON_BIN!r}. "
-            "Run 'cargo build' first."
+            "Run 'cargo build' or 'cargo build --release' first."
         )
     return DAWON_BIN
 
