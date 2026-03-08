@@ -15,9 +15,11 @@
 //! Protocol: for each test the harness writes to stdout —
 //!   `[4 bytes big-endian length][length bytes of captured stdout]`
 //!
-//! Capture limit: `dawon_capture` uses a 65 535-byte fixed buffer.
-//! Outputs larger than that are silently truncated; all C00–C09
-//! exercises produce far less than that.
+//! Capture limit: `dawon_capture` drains up to 65 535 bytes from the
+//! child's stdout in a loop.  If the child writes more, the read-end
+//! is closed (triggering SIGPIPE) before `waitpid`, preventing a
+//! deadlock; the child is reaped normally and only the captured
+//! portion is used.  All C00–C09 exercises produce far less than that.
 //!
 //! Strictness beyond mini-moulinette:
 //! - Test isolation via fork() prevents state pollution.
@@ -48,6 +50,7 @@ static void dawon_capture(void (*fn)(void))
     int             wstatus;
     unsigned char   buf[65536];
     ssize_t         n = 0;
+    ssize_t         r;
     unsigned char   hdr[4];
 
     if (pipe(pipefd) == 0)
@@ -64,11 +67,16 @@ static void dawon_capture(void (*fn)(void))
         else if (pid > 0)
         {
             close(pipefd[1]);
-            n = read(pipefd[0], buf, sizeof(buf) - 1);
-            if (n < 0)
-                n = 0;
-            waitpid(pid, &wstatus, 0);
+            while (n < (ssize_t)(sizeof(buf) - 1))
+            {
+                r = read(pipefd[0], buf + n,
+                         sizeof(buf) - 1 - (size_t)n);
+                if (r <= 0)
+                    break;
+                n += r;
+            }
             close(pipefd[0]);
+            waitpid(pid, &wstatus, 0);
         }
         else
         {
