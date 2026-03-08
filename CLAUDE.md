@@ -126,6 +126,10 @@ fuzz/
 - Prose (comments, docs, Markdown) wraps at 72 characters
 - No unnecessary dependencies — prefer `std` where possible
 - Do not mix formatting-only changes with logic changes in one commit
+- **Every commit merged to `main` must pass CI on its own.**
+  Do not bundle a CI fix with unrelated changes. Verify each
+  commit in isolation before opening a PR (see CONTRIBUTING.md
+  — Atomic commits).
 
 ## Pull request discipline
 
