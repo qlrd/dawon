@@ -160,9 +160,11 @@ pub fn run(subject: &Subject, source_files: &[PathBuf]) -> anyhow::Result<CheckR
         return Ok(CheckResult::fail("Function tests (harness)", msgs));
     }
 
-    // Run — binary protocol on stdout, ASAN/UBSAN errors on stderr
+    // Run — binary protocol on stdout, ASAN/UBSAN errors on stderr.
+    // detect_leaks=1 is Linux-only (LSan not available on macOS); valgrind
+    // handles leak detection on Linux separately, so omit it here.
     let run_out = Command::new(&binary)
-        .env("ASAN_OPTIONS", "detect_leaks=1:log_path=/dev/stderr")
+        .env("ASAN_OPTIONS", "log_path=/dev/stderr")
         .env("UBSAN_OPTIONS", "print_stacktrace=1")
         .output()?;
 
