@@ -130,49 +130,49 @@ pub static ALL: &[Subject] = &[
                 name: "0",
                 c_call: "ft_is_negative(0);",
                 expected_sha256: &hex!(
-                    "24d420934ce116d50c3049354652027fb9d2f00b11135500c6217a9ac49d39d5"
+                    "852a478ece1b66d04d107ae488dd476a5a43b317f62729e25152e4bfba096cac"
                 ),
             },
             TestCase {
                 name: "-1",
                 c_call: "ft_is_negative(-1);",
                 expected_sha256: &hex!(
-                    "b749bacbabf458de539109abb18a69128c27db492c8511a6a62c6b2fcc5a0b92"
+                    "28312e346b76a3f91e8283519baab5f103d79547dedff5fb7ccc0dc3c5119bbe"
                 ),
             },
             TestCase {
                 name: "1",
                 c_call: "ft_is_negative(1);",
                 expected_sha256: &hex!(
-                    "24d420934ce116d50c3049354652027fb9d2f00b11135500c6217a9ac49d39d5"
+                    "852a478ece1b66d04d107ae488dd476a5a43b317f62729e25152e4bfba096cac"
                 ),
             },
             TestCase {
                 name: "42",
                 c_call: "ft_is_negative(42);",
                 expected_sha256: &hex!(
-                    "24d420934ce116d50c3049354652027fb9d2f00b11135500c6217a9ac49d39d5"
+                    "852a478ece1b66d04d107ae488dd476a5a43b317f62729e25152e4bfba096cac"
                 ),
             },
             TestCase {
                 name: "-42",
                 c_call: "ft_is_negative(-42);",
                 expected_sha256: &hex!(
-                    "b749bacbabf458de539109abb18a69128c27db492c8511a6a62c6b2fcc5a0b92"
+                    "28312e346b76a3f91e8283519baab5f103d79547dedff5fb7ccc0dc3c5119bbe"
                 ),
             },
             TestCase {
                 name: "INT_MIN",
                 c_call: "ft_is_negative(INT_MIN);",
                 expected_sha256: &hex!(
-                    "b749bacbabf458de539109abb18a69128c27db492c8511a6a62c6b2fcc5a0b92"
+                    "28312e346b76a3f91e8283519baab5f103d79547dedff5fb7ccc0dc3c5119bbe"
                 ),
             },
             TestCase {
                 name: "INT_MAX",
                 c_call: "ft_is_negative(INT_MAX);",
                 expected_sha256: &hex!(
-                    "24d420934ce116d50c3049354652027fb9d2f00b11135500c6217a9ac49d39d5"
+                    "852a478ece1b66d04d107ae488dd476a5a43b317f62729e25152e4bfba096cac"
                 ),
             },
         ],
