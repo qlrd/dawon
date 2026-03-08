@@ -309,6 +309,38 @@ on what changed between your test runs.
 
 ---
 
+## Atomic commits
+
+Every commit merged to `main` must pass CI on its own.  Do not
+bundle a fix for a red CI with unrelated changes so that the bundle
+passes while the individual commit would not.
+
+Practically: to verify every commit on a multi-commit branch:
+
+```bash
+git rebase -i --exec 'just check' main
+```
+
+This replays each commit and runs the full CI suite (`fmt-check`,
+`clippy`, `cargo test`, Python tests) after every one.  If any
+step fails the rebase stops at that commit so you can fix and
+continue.
+
+If you have only one commit or just want to check the tip:
+
+```bash
+just check
+```
+
+Use `git rebase -i` to squash or fixup commits that only exist to
+"fix the previous commit" before opening the PR.
+
+The CI ruleset enforces linear history.  A commit that breaks
+`main` in isolation cannot be fixed by the next commit — it must
+be amended before merge.
+
+---
+
 ## Pull request size
 
 Keep each PR small enough that a human can review it in one sitting.
@@ -343,7 +375,8 @@ Each PR in the stack must be independently reviewable and buildable.
    ```
 
 2. Make your changes and add or update tests as needed.
-3. Ensure all CI checks pass locally:
+3. Ensure all CI checks pass locally per-commit (see Atomic
+   commits above):
 
    ```bash
    just check
@@ -354,7 +387,7 @@ Each PR in the stack must be independently reviewable and buildable.
    tested. Reference any related issues.
 
 Pull requests require at least one review from a maintainer before
-merging. The CI pipeline must be green.
+merging. The CI pipeline must be green on every commit.
 
 ---
 
