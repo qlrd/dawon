@@ -165,10 +165,15 @@ pub fn run(subject: &Subject, source_files: &[PathBuf]) -> anyhow::Result<CheckR
     }
 
     // Run — binary protocol on stdout, ASAN/UBSAN errors on stderr.
-    // detect_leaks=1 is Linux-only (LSan not available on macOS); valgrind
-    // handles leak detection on Linux separately, so omit it here.
+    // LSan is available on Linux but not on macOS; enable detect_leaks
+    // only where it is supported to avoid aborting before any output.
+    let asan_opts = if cfg!(target_os = "linux") {
+        "detect_leaks=1:log_path=/dev/stderr"
+    } else {
+        "log_path=/dev/stderr"
+    };
     let run_out = Command::new(&binary)
-        .env("ASAN_OPTIONS", "log_path=/dev/stderr")
+        .env("ASAN_OPTIONS", asan_opts)
         .env("UBSAN_OPTIONS", "print_stacktrace=1")
         .output()?;
 
