@@ -6,8 +6,44 @@ Thank you for contributing to Dawon.
 
 ## Before you start
 
-Open an issue to discuss significant changes before writing code.
-For small fixes (typos, obvious bugs) a direct pull request is fine.
+**Always open an issue before writing code**, even for small changes.
+This lets maintainers prioritise the backlog, avoid duplicate work,
+and assign the right labels before anyone spends time on a PR.
+
+The only exception is a one-line typo fix where the intent is
+completely unambiguous.
+
+---
+
+## Issue labels
+
+Use labels when opening an issue so it can be triaged and
+prioritised immediately.
+
+| Label | When to use |
+|-------|-------------|
+| `good first issue` | Self-contained, well-scoped, newcomer-friendly |
+| `bug` | Something is broken or produces wrong output |
+| `enhancement` | New feature or improvement to existing behaviour |
+| `docs` | Documentation-only change |
+| `refactor` | Internal restructuring, no behaviour change |
+| `test` | Missing or inadequate test coverage |
+| `ci` | Workflow, justfile, or toolchain change |
+| `security` | Vulnerability or hardening concern |
+| `help wanted` | Maintainer lacks bandwidth; contributions welcome |
+| `question` | Discussion or clarification needed before work starts |
+| `blocked` | Cannot proceed until another issue/PR is resolved |
+
+**Priority is driven by labels.**  Issues tagged `good first issue`
+are the recommended entry point for new contributors.  Issues tagged
+`help wanted` are higher-priority and may already have a rough design
+in comments — read them before starting.
+
+To add or update labels, use the GitHub UI or:
+
+```bash
+gh issue edit <NUMBER> --add-label "good first issue"
+```
 
 ---
 
