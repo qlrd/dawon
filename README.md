@@ -170,6 +170,33 @@ monsieur-ganesha and vice versa.
 
 ---
 
+## Mascot and lore
+
+<p align="center">
+  <img src="assets/mascot.svg" alt="Dawon mascot" width="280">
+</p>
+
+**Dawon** is the divine lion (or tiger) who carries Mahakali into
+battle. Ancient, patient, and absolutely merciless when the test
+suite demands it.
+
+In the lore of this project, Dawon is the inspector who arrives
+after Mademoiselle Norminette has already made her first pass.
+Where Norminette is strict about style, Dawon is strict about
+*correctness* — she does not care how elegant your code looks if
+`INT_MIN` makes it crash.
+
+> *"I am not here to be gentle.*
+> *I am here so moulinette does not have to be harsh."*
+>
+> — Dawon, Conservatoire de Paris XLII
+
+The mascot illustration (`assets/mascot.svg`) depicts Dawon in
+her inspector uniform: powerful, elegant, wearing the badge of the
+Conservatoire. She reviews your submission with absolute focus.
+
+---
+
 ## License
 
 [MIT](LICENSE)
