@@ -1,19 +1,31 @@
 //! C test harness generator + runner.
 //!
-//! For each exercise, gato-de-botas generates a C file that:
-//! 1. Declares the student function.
-//! 2. Defines a `gato_test()` runner using fork()+pipe() — each test
-//!    case runs in an isolated child process so crashes don't stop
-//!    the suite and stdout is captured precisely (byte-for-byte).
-//! 3. Compiles student code + harness with ASAN/UBSAN enabled.
-//! 4. Runs the binary and parses `[PASS]` / `[FAIL]` lines from
-//!    stderr.
+//! For each exercise, Dawon generates a C file that:
+//! 1. Declares the student function prototype.
+//! 2. Wraps each test case in `static void test_N(void)`.
+//! 3. Uses `dawon_capture(test_N)` to fork, capture stdout via a
+//!    pipe, and emit a 4-byte big-endian length followed by the raw
+//!    bytes to the parent's stdout — one record per test.
+//! 4. Compiles student code + harness with ASAN/UBSAN.
+//! 5. Rust reads the binary protocol, SHA-256 hashes each captured
+//!    output, and compares against the stored commitment.
 //!
-//! This is stricter than moulinette because:
+//! No expected bytes appear in the generated C source.
+//!
+//! Protocol: for each test the harness writes to stdout —
+//!   `[4 bytes big-endian length][length bytes of captured stdout]`
+//!
+//! Capture limit: `dawon_capture` drains up to 65 535 bytes from the
+//! child's stdout in a loop.  If the child writes more, the read-end
+//! is closed (triggering SIGPIPE) before `waitpid`, preventing a
+//! deadlock; the child is reaped normally and only the captured
+//! portion is used.  All C00–C09 exercises produce far less than that.
+//!
+//! Strictness beyond mini-moulinette:
 //! - Test isolation via fork() prevents state pollution.
 //! - ASAN catches heap overflows / use-after-free.
 //! - UBSAN catches signed integer overflow (INT_MIN trap!).
-//! - memcmp() comparison handles embedded null bytes correctly.
+//! - SHA-256 comparison handles embedded null bytes correctly.
 
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
@@ -31,13 +43,14 @@ use crate::subjects::{Subject, TestCase};
 // compares it against the commitment stored in TestCase.
 
 static HARNESS_INFRA: &str = r#"
-static void gato_capture(void (*fn)(void))
+static void dawon_capture(void (*fn)(void))
 {
     int             pipefd[2];
     pid_t           pid;
     int             wstatus;
     unsigned char   buf[65536];
     ssize_t         n = 0;
+    ssize_t         r;
     unsigned char   hdr[4];
 
     if (pipe(pipefd) == 0)
@@ -54,11 +67,16 @@ static void gato_capture(void (*fn)(void))
         else if (pid > 0)
         {
             close(pipefd[1]);
-            n = read(pipefd[0], buf, sizeof(buf) - 1);
-            if (n < 0)
-                n = 0;
-            waitpid(pid, &wstatus, 0);
+            while (n < (ssize_t)(sizeof(buf) - 1))
+            {
+                r = read(pipefd[0], buf + n,
+                         sizeof(buf) - 1 - (size_t)n);
+                if (r <= 0)
+                    break;
+                n += r;
+            }
             close(pipefd[0]);
+            waitpid(pid, &wstatus, 0);
         }
         else
         {
@@ -81,15 +99,15 @@ static void gato_capture(void (*fn)(void))
 /// Generate the full C harness source for *subject* / *tests*.
 ///
 /// No expected bytes are embedded in the generated C — the harness
-/// only captures stdout and sends it back via a length-prefixed binary
-/// protocol.  SHA-256 comparison happens entirely in Rust.
+/// only captures stdout and sends it back via a length-prefixed
+/// binary protocol. SHA-256 comparison happens entirely in Rust.
 pub fn generate(subject: &Subject, tests: &[TestCase]) -> String {
     let mut src = String::new();
 
     src.push_str("#include <unistd.h>\n");
+    src.push_str("#include <stdlib.h>\n");
     src.push_str("#include <stdio.h>\n");
     src.push_str("#include <string.h>\n");
-    src.push_str("#include <stdlib.h>\n");
     src.push_str("#include <sys/wait.h>\n");
     src.push_str("#include <limits.h>\n\n");
 
@@ -112,7 +130,7 @@ pub fn generate(subject: &Subject, tests: &[TestCase]) -> String {
     // main: capture each test's stdout via binary protocol
     src.push_str("int\tmain(void)\n{\n");
     for i in 0..tests.len() {
-        src.push_str(&format!("\tgato_capture(test_{i});\n"));
+        src.push_str(&format!("\tdawon_capture(test_{i});\n"));
     }
     src.push_str("\treturn (0);\n}\n");
 
@@ -128,13 +146,11 @@ pub fn generate(subject: &Subject, tests: &[TestCase]) -> String {
 pub fn run(subject: &Subject, source_files: &[PathBuf]) -> anyhow::Result<CheckResult> {
     let tmp = tempfile::TempDir::new()?;
 
-    // Write generated harness
-    let harness_path = tmp.path().join("gato_harness.c");
+    let harness_path = tmp.path().join("dawon_harness.c");
     std::fs::write(&harness_path, generate(subject, subject.tests))?;
 
-    // Compile: student sources + harness, with ASAN + UBSAN
-    let binary = tmp.path().join("gato_test");
-    let compile_status = Command::new("cc")
+    let binary = tmp.path().join("dawon_test");
+    let compile_out = Command::new("cc")
         .args([
             "-Wall",
             "-Wextra",
@@ -148,17 +164,24 @@ pub fn run(subject: &Subject, source_files: &[PathBuf]) -> anyhow::Result<CheckR
         .arg(&binary)
         .output()?;
 
-    if !compile_status.status.success() {
-        let msgs: Vec<String> = String::from_utf8_lossy(&compile_status.stderr)
+    if !compile_out.status.success() {
+        let msgs: Vec<String> = String::from_utf8_lossy(&compile_out.stderr)
             .lines()
             .map(String::from)
             .collect();
         return Ok(CheckResult::fail("Function tests (harness)", msgs));
     }
 
-    // Run — binary protocol on stdout, ASAN/UBSAN errors on stderr
+    // Run — binary protocol on stdout, ASAN/UBSAN errors on stderr.
+    // LSan is available on Linux but not on macOS; enable detect_leaks
+    // only where it is supported to avoid aborting before any output.
+    let asan_opts = if cfg!(target_os = "linux") {
+        "detect_leaks=1:log_path=/dev/stderr"
+    } else {
+        "log_path=/dev/stderr"
+    };
     let run_out = Command::new(&binary)
-        .env("ASAN_OPTIONS", "detect_leaks=1:log_path=/dev/stderr")
+        .env("ASAN_OPTIONS", asan_opts)
         .env("UBSAN_OPTIONS", "print_stacktrace=1")
         .output()?;
 
@@ -169,14 +192,14 @@ pub fn run(subject: &Subject, source_files: &[PathBuf]) -> anyhow::Result<CheckR
 ///
 /// Reads the length-prefixed binary protocol from `stdout`, hashes
 /// each captured output with SHA-256, and compares against the
-/// commitment stored in each `TestCase`.  Expected bytes never appear
+/// commitment stored in each `TestCase`. Expected bytes never appear
 /// in this function — only the hash comparison result.
 fn compare_outputs(
     stdout: &[u8],
     stderr: &[u8],
     tests: &[TestCase],
 ) -> anyhow::Result<CheckResult> {
-    // Detect ASAN/UBSAN errors in stderr
+    // Detect ASAN/UBSAN errors in stderr first
     let stderr_text = String::from_utf8_lossy(stderr);
     let asan_errors: Vec<String> = stderr_text
         .lines()
@@ -184,15 +207,15 @@ fn compare_outputs(
         .map(String::from)
         .collect();
 
-    // Parse binary protocol: [4-byte BE length][bytes] per test, in order
     let mut pos = 0usize;
     let mut msgs: Vec<String> = Vec::new();
     let mut pass_count = 0usize;
 
     for tc in tests {
         if pos + 4 > stdout.len() {
-            msgs.push(format!("  FAIL  {} (output truncated)", tc.name));
-            continue;
+            // Once the stream is out of sync, further parsing is meaningless.
+            msgs.push(format!("  ERROR  {} — truncated protocol", tc.name));
+            break;
         }
         let len = u32::from_be_bytes([
             stdout[pos],
@@ -203,8 +226,8 @@ fn compare_outputs(
         pos += 4;
 
         if pos + len > stdout.len() {
-            msgs.push(format!("  FAIL  {} (output truncated)", tc.name));
-            continue;
+            msgs.push(format!("  ERROR  {} — truncated body", tc.name));
+            break;
         }
         let output = &stdout[pos..pos + len];
         pos += len;
