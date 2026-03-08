@@ -67,14 +67,17 @@ src/
 │   ├── norminette.rs    subprocess: norminette
 │   ├── compiler.rs      subprocess: cc + ASAN/UBSAN
 │   ├── forbidden.rs     regex scan + nm symbol table
-│   ├── harness.rs       fork+pipe byte-exact C harness
+│   ├── harness.rs       fork+pipe SHA-256 C harness
 │   └── valgrind.rs      subprocess: valgrind
 └── subjects/
     ├── mod.rs
-    └── c00.rs           C00 exercise definitions + test vectors
+    ├── c00.rs           C00 exercise definitions + test vectors
+    └── c01.rs … c09.rs  C01–C09 exercise definitions
 
 tests/
 ├── test_harness.rs      integration: harness round-trip
+├── test_config.rs       integration: config loading
+├── test_forbidden.rs    integration: forbidden-function scan
 └── python/
     ├── conftest.py      fixtures (binary path, run, module_dir)
     ├── test_cli.py      CLI functional tests
@@ -125,8 +128,10 @@ git config --global core.editor vim
 - ASAN/UBSAN enabled at compile time in the C test harness.
 - Forbidden check has two layers: regex scan then `nm -u` symbol
   table — catches indirect calls that bypass source-level analysis.
-- Harness uses fork+pipe+memcmp for byte-exact stdout comparison,
-  including null bytes and DEL (0x7F).
+- Harness uses `dawon_capture` (fork+pipe binary protocol): each
+  test's stdout is SHA-256 hashed in Rust and compared against the
+  commitment in `TestCase.expected_sha256`. No expected bytes are
+  embedded in the generated C source.
 - `libloading` verifies symbol presence in the student's `.so`
   before running harness tests.
 - `cc -Wall -Wextra -Werror -fsyntax-only` for syntax-only check;
