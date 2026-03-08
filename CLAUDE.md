@@ -5,6 +5,7 @@ This file provides guidance to Claude (and other AI assistants) when working wit
 ## Project Overview
 
 **dawon** is a Rust-based super mini-moulinette. It evaluates subjects through a six-layer check pipeline and enforces strict invariants for deterministic grading.
+It is "super" because expected answers are never stored in plaintext: checks rely on SHA-256 commitments so grading remains deterministic without exposing expected output bytes.
 
 ## Repository Structure
 

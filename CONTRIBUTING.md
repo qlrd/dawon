@@ -80,6 +80,13 @@ Open an [issue](https://github.com/qlrd/dawon/issues) with the label **enhanceme
 - **Document your changes**: Update `README.md` and `CHANGELOG.md` where applicable.
 - **Run checks before commit**: Run `just check` before every commit.
 
+### Rust Code Conventions
+
+- Prefer clear and explicit code over clever abstractions.
+- Keep modules focused; place checks in `src/checks/` and subject metadata in `src/subjects/`.
+- Return structured errors instead of panicking in normal control flow.
+- Keep public-facing behavior deterministic so checker results are reproducible.
+
 ### Adding a New Subject
 
 - Do not commit plaintext expected answers/output bytes.
