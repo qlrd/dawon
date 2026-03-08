@@ -1,0 +1,28 @@
+[package]
+name = "dawon-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[[bin]]
+name = "fuzz_config"
+path = "fuzz_targets/fuzz_config.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "fuzz_forbidden"
+path = "fuzz_targets/fuzz_forbidden.rs"
+test = false
+doc = false
+
+[dependencies]
+libfuzzer-sys = "0.4"
+dawon = { path = ".." }
+tempfile = "3"
+
+# Separate workspace so cargo-fuzz doesn't inherit the root workspace.
+[workspace]
