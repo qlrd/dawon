@@ -168,6 +168,26 @@ merging. The CI pipeline must be green.
 
 ---
 
+## Good first issues
+
+The following tasks are suitable entry points for new contributors:
+
+### macOS harness support
+
+The ASAN/UBSAN test harness uses POSIX primitives (`fork`, `pipe`,
+`waitpid`) that are available on macOS.  CI currently targets Linux
+only; adding a macOS runner to the CI matrix and verifying that the
+harness and all checks pass on macOS is a well-scoped, self-contained
+improvement.  Note that LSan (`detect_leaks=1`) is Linux-only, so the
+macOS job must set `ASAN_OPTIONS` without the `detect_leaks` flag.
+
+Relevant files:
+- `.github/workflows/ci.yml` — CI matrix
+- `src/checks/harness.rs` — fork+pipe harness
+- `src/checks/compiler.rs` — ASAN/UBSAN compile step
+
+---
+
 ## Reporting bugs
 
 Open an issue at:

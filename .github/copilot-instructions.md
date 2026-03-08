@@ -73,6 +73,12 @@ expected_sha256: &hex!("abcdef...32 hex chars..."),
 
 Never set `ASAN_OPTIONS=detect_leaks=1` unconditionally.
 
+macOS is not the primary target: CI runs on Linux only.  The
+POSIX primitives used by the harness (`fork`, `pipe`, `waitpid`)
+are available on macOS, so adding macOS CI support is feasible.
+This is tracked as a **good first issue** — contributions are
+welcome.
+
 ---
 
 ## Commit discipline
