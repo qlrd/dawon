@@ -30,10 +30,11 @@ The config file is always `.dawon.toml`.  Never write `.gato.toml`.
 ## Harness design
 
 The C harness uses `fork()` + `pipe()` + `waitpid()`.  It is
-POSIX-only and cannot run on Windows.
+POSIX-only and cannot run on Windows.  CI targets Linux only;
+non-Unix platforms are not supported.
 
-- Rust code that calls `harness::run()` must be guarded with
-  `#[cfg(unix)]` in tests.
+- Rust code that calls `harness::run()` is expected to run only on
+  Unix-like targets; no `#[cfg(unix)]` guards are required.
 - The capture buffer is 65 535 bytes.  Outputs larger than that
   are silently truncated.
 - No expected bytes appear in the generated C source.  The Rust
@@ -66,7 +67,7 @@ expected_sha256: &hex!("abcdef...32 hex chars..."),
 
 | Feature | Guard |
 |---------|-------|
-| Round-trip harness tests | `#[cfg(unix)]` |
+| Round-trip harness tests | Unix only — Windows not supported |
 | Valgrind step | `if: runner.os == 'Linux'` in CI |
 | norminette step | `if: runner.os != 'Windows'` in CI |
 | `detect_leaks=1` in ASAN_OPTIONS | Linux only — LSan is not available on macOS |
