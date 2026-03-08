@@ -71,8 +71,13 @@ fn generate_contains_no_expected_bytes() {
     assert!(src.contains("dawon_capture(test_0)"));
 }
 
-// ── round-trip tests (compilation) ─────────────────────────────────
+// ── round-trip tests (compilation, Unix only) ──────────────────────
+//
+// The generated harness uses fork()/pipe()/waitpid() and
+// #include <sys/wait.h> — POSIX-only constructs unavailable on
+// Windows.  The structural tests above are platform-independent.
 
+#[cfg(unix)]
 fn write_probe_impl(dir: &std::path::Path) -> std::path::PathBuf {
     let src = dir.join("ft_gato_probe.c");
     std::fs::write(
@@ -83,6 +88,7 @@ fn write_probe_impl(dir: &std::path::Path) -> std::path::PathBuf {
     src
 }
 
+#[cfg(unix)]
 fn write_wrong_probe_impl(dir: &std::path::Path) -> std::path::PathBuf {
     let src = dir.join("ft_gato_probe.c");
     std::fs::write(
@@ -93,6 +99,7 @@ fn write_wrong_probe_impl(dir: &std::path::Path) -> std::path::PathBuf {
     src
 }
 
+#[cfg(unix)]
 #[test]
 fn harness_passes_when_probe_output_matches() {
     let tmp = tempfile::TempDir::new().unwrap();
@@ -101,6 +108,7 @@ fn harness_passes_when_probe_output_matches() {
     assert!(result.is_pass(), "probe should pass: {:?}", result.status);
 }
 
+#[cfg(unix)]
 #[test]
 fn harness_fails_when_probe_output_is_wrong() {
     let tmp = tempfile::TempDir::new().unwrap();
