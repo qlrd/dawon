@@ -144,6 +144,31 @@ on what changed between your test runs.
 
 ---
 
+## Atomic commits
+
+Every commit merged to `main` must pass CI on its own.  Do not
+bundle a fix for a red CI with unrelated changes so that the bundle
+passes while the individual commit would not.
+
+Practically: before pushing, test each commit in isolation:
+
+```bash
+git stash        # stash uncommitted work
+cargo fmt --check
+cargo clippy -- -D warnings
+cargo test
+git stash pop    # restore
+```
+
+Or use `git rebase -i` to squash/fixup commits that only exist to
+"fix the previous commit" before opening the PR.
+
+The CI ruleset enforces linear history.  A commit that breaks
+`main` in isolation cannot be fixed by the next commit — it must
+be amended before merge.
+
+---
+
 ## Submitting a pull request
 
 1. Create a branch from `main`:
@@ -153,7 +178,8 @@ on what changed between your test runs.
    ```
 
 2. Make your changes and add or update tests as needed.
-3. Ensure all CI checks pass locally:
+3. Ensure all CI checks pass locally per-commit (see Atomic
+   commits above):
 
    ```bash
    just check
@@ -164,7 +190,7 @@ on what changed between your test runs.
    tested. Reference any related issues.
 
 Pull requests require at least one review from a maintainer before
-merging. The CI pipeline must be green.
+merging. The CI pipeline must be green on every commit.
 
 ---
 
