@@ -112,6 +112,7 @@ work under the terms of the MIT License. See the full
 1. Create `src/subjects/<module>.rs` with `Subject` definitions
    and `TestCase` vectors. Include strict edge cases: `INT_MIN`,
    null byte (`'\0'`), DEL (127), empty input.
+   Use SHA-256 commitment hashes — no plaintext answers in source.
 2. Export it in `src/subjects/mod.rs`.
 3. Wire the new subject into `src/cli.rs` and `src/eval.rs`.
 4. Add fixtures under `tests/python/fixtures/` as needed.

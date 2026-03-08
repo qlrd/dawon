@@ -4,10 +4,10 @@ Cargo.lock
 
 # Python
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
 *.pyo
 *.pyd
+*$py.class
 .venv/
 venv/
 .Python
@@ -18,5 +18,11 @@ build/
 .coverage
 htmlcov/
 pip-log.txt
+
+# Fuzz artifacts
+fuzz/artifacts/
+fuzz/corpus/
+
+# uv / venv
 tests/python/uv.lock
 tests/python/.venv/
