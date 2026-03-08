@@ -4,10 +4,20 @@
 //! generate the C test harness and run every check.
 
 pub mod c00;
+pub mod c01;
+pub mod c02;
+pub mod c03;
+pub mod c04;
+pub mod c05;
+pub mod c06;
+pub mod c07;
+pub mod c08;
+pub mod c09;
 
 /// A single test case for a C function.
 pub struct TestCase {
     /// Human-readable label shown in PASS/FAIL output.
+    ///
     /// Must describe the *input*, not the expected output.
     pub name: &'static str,
     /// C statement placed verbatim inside a
@@ -16,8 +26,8 @@ pub struct TestCase {
     pub c_call: &'static str,
     /// SHA-256 commitment of the expected stdout bytes.
     ///
-    /// Computed with `sha256sum <<< "expected"` (without trailing
-    /// newline) or any standard SHA-256 tool.  The harness captures
+    /// Computed with `printf 'expected' | sha256sum` (no trailing
+    /// newline unless the function outputs one). The harness captures
     /// the student's stdout, hashes it, and compares — no expected
     /// bytes are ever embedded in generated C code.
     pub expected_sha256: &'static [u8; 32],
@@ -45,4 +55,49 @@ pub struct Subject {
 /// All C00 subjects, in order.
 pub fn all_c00() -> &'static [Subject] {
     c00::ALL
+}
+
+/// All C01 subjects, in order.
+pub fn all_c01() -> &'static [Subject] {
+    c01::ALL
+}
+
+/// All C02 subjects, in order.
+pub fn all_c02() -> &'static [Subject] {
+    c02::ALL
+}
+
+/// All C03 subjects, in order.
+pub fn all_c03() -> &'static [Subject] {
+    c03::ALL
+}
+
+/// All C04 subjects, in order.
+pub fn all_c04() -> &'static [Subject] {
+    c04::ALL
+}
+
+/// All C05 subjects, in order.
+pub fn all_c05() -> &'static [Subject] {
+    c05::ALL
+}
+
+/// All C06 subjects, in order.
+pub fn all_c06() -> &'static [Subject] {
+    c06::ALL
+}
+
+/// All C07 subjects, in order.
+pub fn all_c07() -> &'static [Subject] {
+    c07::ALL
+}
+
+/// All C08 subjects, in order.
+pub fn all_c08() -> &'static [Subject] {
+    c08::ALL
+}
+
+/// All C09 subjects, in order.
+pub fn all_c09() -> &'static [Subject] {
+    c09::ALL
 }
