@@ -116,7 +116,8 @@ in a single sitting.
 - Separate code from docs; separate refactors from features
 - For large changes, split into a stack of small PRs:
   skeleton → implementation → tests → documentation
-- Open an issue first for anything non-trivial
+- **Always open a GitHub issue first** — label it before writing code
+  (`good first issue`, `enhancement`, `bug`, `docs`, etc.)
 
 ## Commit message format
 
