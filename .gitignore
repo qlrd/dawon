@@ -1,0 +1,22 @@
+/target
+Cargo.lock
+.gato.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.venv/
+venv/
+.Python
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+pip-log.txt
+tests/python/uv.lock
+tests/python/.venv/
