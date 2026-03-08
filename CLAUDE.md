@@ -106,6 +106,18 @@ fuzz/
 - Prose (comments, docs, Markdown) wraps at 72 characters
 - No unnecessary dependencies — prefer `std` where possible
 
+## Pull request discipline
+
+Keep each PR focused on **one concern** so a human can review it
+in a single sitting.
+
+- ≤ 400 lines changed (excluding generated/fixture files)
+- One commit type per PR (`feat`, `fix`, `docs`, …)
+- Separate code from docs; separate refactors from features
+- For large changes, split into a stack of small PRs:
+  skeleton → implementation → tests → documentation
+- Open an issue first for anything non-trivial
+
 ## Commit message format
 
 ```

@@ -145,6 +145,31 @@ on what changed between your test runs.
 
 ---
 
+## Pull request size
+
+Keep each PR small enough that a human can review it in one sitting.
+Aim for **one concern per PR**.
+
+| Rule | Rationale |
+|------|-----------|
+| ≤ 400 lines changed (excluding generated/fixture files) | Reviewers lose focus beyond that |
+| One commit type per PR (e.g. `feat` or `docs`, not both) | Makes the diff predictable |
+| Separate refactors from feature additions | Mixing intent hides bugs |
+| Separate docs-only changes from code changes | Docs can be merged faster |
+| Open an issue first for anything larger | Agree on approach before writing code |
+
+If your change is genuinely large (new module, new check pipeline),
+**split it into a stack of small PRs**, each green on CI:
+
+1. PR 1 — skeleton / types only
+2. PR 2 — implementation
+3. PR 3 — tests
+4. PR 4 — documentation
+
+Each PR in the stack must be independently reviewable and buildable.
+
+---
+
 ## Submitting a pull request
 
 1. Create a branch from `main`:
