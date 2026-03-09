@@ -88,9 +88,16 @@ If a multi-OS CI matrix is ever added:
 - Subject line ≤ 72 characters
 - Types: `feat` `fix` `docs` `style` `refactor` `perf` `test`
   `build` `ci` `chore` `revert` `init`
+- Keep the subject line purely semantic; do not add lore to
+  `<type>[(<scope>)][!]: <description>`
+- Lore is optional flavour in the commit body after technical details
+- Once the PR number is known, include it in commit metadata by
+  appending `(#N)` to the subject line or adding `Closes #N` /
+  `Refs #N` in the commit body footer
 - Every commit merged to `main` must pass CI on its own (atomic
   commits — do not bundle a CI fix with unrelated changes)
-- All commits must include `Signed-off-by:` (DCO)
+- All commits must include `Signed-off-by:` (DCO); Monsieur
+  Piscinette signature text is optional for external contributors
 
 ---
 
@@ -140,6 +147,8 @@ If a multi-OS CI matrix is ever added:
 
 - Open an issue before writing code for non-trivial changes
 - PR description must state: what, why, how tested
+- Keep `Summary`, `Changes`, and `Test plan` factual; lore is optional
+  in narrative sections
 - CI must be green on every commit before merging
 - Merge method: **Rebase and merge** (squash and merge are also
   allowed; merge commits are not)

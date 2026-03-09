@@ -219,11 +219,18 @@ This project uses **Conventional Commits 1.0.0**.
   `build` `ci` `chore` `revert` `init`
 - Append `!` after the type/scope to signal a breaking change.
   Add a body explaining why.
+- Keep the subject line purely semantic. Lore is optional flavour,
+  but never in `<type>[(<scope>)][!]: <description>`.
+- Lore is welcome in the commit body after the technical explanation.
+- Once the PR number is known, include traceability to the PR
+  discussion: append `(#N)` in the subject or add `Closes #N` /
+  `Refs #N` in the body footer.
 
 Examples:
 
 ```
 feat(harness): add INT_MIN edge case for ft_putnbr
+feat(harness): add drain loop (#19)
 fix(forbidden): handle multi-line macro definitions
 docs: update configuration section in README.md
 test: add round-trip for correct ft_print_comb
@@ -251,6 +258,9 @@ git commit -s
 By signing off you certify that you have the right to submit your
 work under the terms of the MIT License. See the full
 [DCO](https://developercertificate.org/).
+
+The Monsieur Piscinette signature style is project flavour, not a
+requirement for external contributors.
 
 ---
 
@@ -385,6 +395,9 @@ Each PR in the stack must be independently reviewable and buildable.
 4. Push your branch and open a pull request against `main`.
 5. Describe what the PR does, why it is needed, and how it was
    tested. Reference any related issues.
+
+Lore is welcome in narrative sections, but keep `Summary`, `Changes`,
+and `Test plan` factual and tooling-friendly.
 
 Pull requests require at least one review from a maintainer before
 merging. The CI pipeline must be green on every commit.
