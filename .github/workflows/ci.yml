@@ -66,9 +66,15 @@ jobs:
         run: cd tests/python && uv run pytest -q
 
   debian:
-    name: test / debian-stable
+    name: test / debian-stable / rust-${{ matrix.toolchain }}
     runs-on: ubuntu-latest
     container: debian:stable
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain:
+          - stable
+          - "1.74"   # MSRV — driven by clap 4
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -79,18 +85,21 @@ jobs:
           apt-get install -y --no-install-recommends \
             curl gcc valgrind python3 python3-pip ca-certificates
 
-      - name: Install Rust stable
+      - name: Install Rust ${{ matrix.toolchain }}
         run: |
-          curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
+          curl -sSf https://sh.rustup.rs \
+            | sh -s -- -y --profile minimal --default-toolchain ${{ matrix.toolchain }}
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
       - name: Install norminette
         run: pip3 install norminette --break-system-packages
 
       - name: cargo fmt --check
+        if: matrix.toolchain == 'stable'
         run: cargo fmt --check
 
       - name: cargo clippy
+        if: matrix.toolchain == 'stable'
         run: cargo clippy -- -D warnings
 
       - name: cargo test
