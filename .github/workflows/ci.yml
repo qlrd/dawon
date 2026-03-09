@@ -69,9 +69,6 @@ jobs:
     name: test / debian-stable / rust-${{ matrix.toolchain }}
     runs-on: ubuntu-latest
     container: debian:stable
-    env:
-      CARGO_HOME: /root/.cargo
-      RUSTUP_HOME: /root/.rustup
     strategy:
       fail-fast: false
       matrix:
@@ -93,7 +90,7 @@ jobs:
           curl -sSf https://sh.rustup.rs \
             | sh -s -- -y --profile minimal --default-toolchain ${{ matrix.toolchain }} \
               --component rustfmt --component clippy
-          echo "$CARGO_HOME/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
       - name: Install norminette
         run: pip3 install norminette --break-system-packages
