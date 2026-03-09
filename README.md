@@ -62,8 +62,8 @@ dawon friend --path /path/to/friend/C00
 
 ```
 --no-sanitizers   build valgrind target without ASAN/UBSAN
---no-valgrind     skip valgrind (step 2)
---check-symbol    enable symbol-presence check (step 1)
+--no-valgrind     skip valgrind
+--check-symbol    enable symbol-presence check
 ```
 
 ---
@@ -97,18 +97,17 @@ If `.dawon.toml` is absent, Dawon uses safe defaults.
   ex00 — ft_putchar
   Write a function that outputs a char to stdout.
 ────────────────────────────────────────────────────────────
-  [1/3] Symbol: ft_putchar                     PASS
-  [2/3] Valgrind                               PASS
-  [3/3] Harness (ASAN/UBSAN)                   PASS
+  [1/2] Valgrind                               PASS
+  [2/2] Function tests (7 passed)              PASS
 
-  Summary: 3/3 passed
+  Summary: 2/2 passed
 
 ════════════════════════════════════════════════════════════
   GRAND SUMMARY
 ════════════════════════════════════════════════════════════
-  ex00 (ft_putchar)   3/3
+  ex00 (ft_putchar)   2/2
 ════════════════════════════════════════════════════════════
-  3/3 checks passed
+  2/2 checks passed
 ════════════════════════════════════════════════════════════
 ```
 

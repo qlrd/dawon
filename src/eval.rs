@@ -5,7 +5,7 @@ use std::time::Duration;
 
 use crate::checks::{compiler, harness, valgrind};
 use crate::config::Config;
-use crate::report::{CheckResult, CheckStatus, SuiteResult};
+use crate::report::{CheckResult, SuiteResult};
 use crate::subjects::Subject;
 
 /// Resolve every required source file inside *exercise_dir*.
@@ -88,16 +88,8 @@ pub fn run(subject: &Subject, exercise_dir: &Path, cfg: &Config) -> SuiteResult 
             checks.push(valgrind::check(&binary, Duration::from_secs(10)));
         } else {
             checks.push(CheckResult {
-                name: "Valgrind".to_string(),
-                status: match compile_res.status {
-                    CheckStatus::Fail(msgs) => CheckStatus::Fail(msgs),
-                    CheckStatus::Error(msg) => CheckStatus::Error(msg),
-                    CheckStatus::Skipped(reason) => CheckStatus::Skipped(reason),
-                    CheckStatus::Pending => CheckStatus::Pending,
-                    CheckStatus::Pass => CheckStatus::Fail(vec![
-                        "unexpected compile state while preparing valgrind".to_string(),
-                    ]),
-                },
+                name: "Valgrind (build)".to_string(),
+                status: compile_res.status,
             });
         }
     }

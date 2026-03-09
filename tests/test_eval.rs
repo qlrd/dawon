@@ -2,6 +2,7 @@
 
 use dawon::config::Config;
 use dawon::eval;
+use dawon::report::CheckStatus;
 use dawon::subjects;
 
 #[test]
@@ -25,6 +26,7 @@ void ft_putchar(char c) { write(1, &c, 1); }
 
     assert_eq!(result.checks.len(), 1);
     assert!(result.checks[0].name.starts_with("Function tests"));
+    assert!(matches!(result.checks[0].status, CheckStatus::Pass));
 }
 
 #[test]
@@ -50,4 +52,6 @@ void ft_putchar(char c) { write(1, &c, 1); }
     assert_eq!(result.checks.len(), 2);
     assert!(result.checks[0].name.contains("Symbol"));
     assert!(result.checks[1].name.starts_with("Function tests"));
+    assert!(matches!(result.checks[0].status, CheckStatus::Pass));
+    assert!(matches!(result.checks[1].status, CheckStatus::Pass));
 }
