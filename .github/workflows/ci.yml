@@ -69,12 +69,15 @@ jobs:
     name: test / debian-stable / rust-${{ matrix.toolchain }}
     runs-on: ubuntu-latest
     container: debian:stable
+    env:
+      CARGO_HOME: /root/.cargo
+      RUSTUP_HOME: /root/.rustup
     strategy:
       fail-fast: false
       matrix:
         toolchain:
           - stable
-          - "1.74"   # MSRV — driven by clap 4
+          - "1.85"   # MSRV — driven by getrandom 0.4 (via tempfile)
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -88,8 +91,9 @@ jobs:
       - name: Install Rust ${{ matrix.toolchain }}
         run: |
           curl -sSf https://sh.rustup.rs \
-            | sh -s -- -y --profile minimal --default-toolchain ${{ matrix.toolchain }}
-          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+            | sh -s -- -y --profile minimal --default-toolchain ${{ matrix.toolchain }} \
+              --component rustfmt --component clippy
+          echo "$CARGO_HOME/bin" >> "$GITHUB_PATH"
 
       - name: Install norminette
         run: pip3 install norminette --break-system-packages
