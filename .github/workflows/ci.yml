@@ -91,6 +91,10 @@ jobs:
             | sh -s -- -y --profile minimal --default-toolchain ${{ matrix.toolchain }}
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
+      - name: Install rustfmt and clippy
+        if: matrix.toolchain == 'stable'
+        run: rustup component add rustfmt clippy
+
       - name: Install norminette
         run: pip3 install norminette --break-system-packages
 
@@ -101,6 +105,10 @@ jobs:
       - name: cargo clippy
         if: matrix.toolchain == 'stable'
         run: cargo clippy -- -D warnings
+
+      - name: Pin tempfile for MSRV compatibility
+        if: matrix.toolchain != 'stable'
+        run: cargo update -p tempfile --precise 3.14.0
 
       - name: cargo test
         run: cargo test
