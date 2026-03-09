@@ -33,6 +33,34 @@ in the release notes unless you prefer anonymity.
 
 ---
 
+## Legal and compliance contact
+
+If you represent 42 School, École 42, or any affiliated entity
+and believe this project infringes on your intellectual property
+or violates your terms of service, **please contact the
+maintainer privately before taking any action**:
+
+```
+https://github.com/qlrd/dawon/security/advisories/new
+```
+
+Use the subject line: `[Legal] <your organisation> — <brief
+description>`.
+
+We are prepared to respond within 48 hours and to remove or
+modify any content immediately upon notification.
+
+### What Dawon does not contain
+
+- No exam subjects, exercise texts, or moulinette source.
+- No expected outputs in plaintext — all test vectors are stored
+  as SHA-256 commitment hashes only.
+- No redistribution of norminette or any 42-internal tool.
+  Norminette is called as an external subprocess that the user
+  must install separately.
+
+---
+
 ## Integrity
 
 Dawon stores expected test outputs as SHA-256 commitment hashes.
