@@ -142,7 +142,7 @@ Rush00 currently includes:
 
 | Exercise | Files | Notes |
 |----------|-------|-------|
-| rush00 | `main.c` | Uses static checks only (no harness vectors yet) |
+| Rush00 | `main.c` | Uses static checks only (no harness vectors yet) |
 
 ---
 

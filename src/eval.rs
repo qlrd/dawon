@@ -143,22 +143,12 @@ mod tests {
     use super::run;
     use crate::config::Config;
     use crate::report::CheckStatus;
-    use crate::subjects::Subject;
-
-    static RUSH_SUBJECT: Subject = Subject {
-        exercise: "rush00",
-        function: "main",
-        c_prototype: "int\tmain(void);",
-        files: &["main.c"],
-        forbidden: &[],
-        description: "Rush00 program entry point.",
-        tests: &[],
-    };
+    use crate::subjects;
 
     #[test]
-    fn empty_test_vectors_skip_symbol_and_harness() {
+    fn test_skips_symbol_and_harness_when_no_test_vectors() {
         let tmp = tempfile::tempdir().expect("tempdir");
-        let ex_dir = tmp.path().join("rush00");
+        let ex_dir = tmp.path().join("Rush00");
         fs::create_dir_all(&ex_dir).expect("create rush dir");
         fs::write(ex_dir.join("main.c"), "int main(void) { return (0); }\n").expect("write C");
 
@@ -166,7 +156,7 @@ mod tests {
         cfg.checks.no_sanitizers = true;
         cfg.checks.no_valgrind = true;
 
-        let result = run(&RUSH_SUBJECT, &ex_dir, &cfg);
+        let result = run(&subjects::rush00::ALL[0], &ex_dir, &cfg);
 
         let symbol = result
             .checks
