@@ -40,7 +40,7 @@ and this project adheres to
 
 - CLI: `--rush` flag for `check`/`friend` to evaluate Rush00
   subjects.
-- Subjects: initial Rush00 support (`rush00/main.c`) with shared
+- Subjects: initial Rush00 support (`Rush00/main.c`) with shared
   static checks (norminette, forbidden scan, compiler, valgrind).
 
 - CI: expanded matrix — Ubuntu 22.04/24.04, macOS 14/15,

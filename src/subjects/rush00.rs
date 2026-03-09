@@ -7,7 +7,7 @@
 use super::Subject;
 
 pub static ALL: &[Subject] = &[Subject {
-    exercise: "rush00",
+    exercise: "Rush00",
     function: "main",
     c_prototype: "int\tmain(void);",
     files: &["main.c"],
