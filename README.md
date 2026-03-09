@@ -185,15 +185,6 @@ Where Norminette is strict about style, Dawon is strict about
 *correctness* — she does not care how elegant your code looks if
 `INT_MIN` makes it crash.
 
-> *"I am not here to be gentle.*
-> *I am here so moulinette does not have to be harsh."*
->
-> — Dawon, Conservatoire de Paris XLII
-
-The mascot illustration (`assets/mascot.svg`) depicts Dawon in
-her inspector uniform: powerful, elegant, wearing the badge of the
-Conservatoire. She reviews your submission with absolute focus.
-
 ---
 
 ## License
