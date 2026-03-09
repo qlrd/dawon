@@ -4,6 +4,7 @@
 //! generate the C test harness and run every check.
 
 pub mod c00;
+pub mod rush00;
 
 /// A single test case for a C function.
 pub struct TestCase {
@@ -45,4 +46,9 @@ pub struct Subject {
 /// All C00 subjects, in order.
 pub fn all_c00() -> &'static [Subject] {
     c00::ALL
+}
+
+/// All Rush00 subjects, in order.
+pub fn all_rush() -> &'static [Subject] {
+    rush00::ALL
 }

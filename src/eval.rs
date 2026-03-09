@@ -66,7 +66,14 @@ pub fn run(subject: &Subject, exercise_dir: &Path, cfg: &Config) -> SuiteResult 
     checks.push(norminette::check(&source_paths));
 
     // ── 2. symbol name (libloading) ──────────────────────────────
-    checks.push(harness::check_symbol(source_paths[0], subject.function));
+    if subject.tests.is_empty() {
+        checks.push(CheckResult::skip(
+            "Symbol check",
+            "not required for this subject",
+        ));
+    } else {
+        checks.push(harness::check_symbol(source_paths[0], subject.function));
+    }
 
     // ── 3. forbidden functions: regex + nm ───────────────────────
     let tmp = match tempfile::TempDir::new() {
@@ -109,9 +116,16 @@ pub fn run(subject: &Subject, exercise_dir: &Path, cfg: &Config) -> SuiteResult 
 
     // ── 6. function harness ──────────────────────────────────────
     if compile_ok {
-        match harness::run(subject, &source_files) {
-            Ok(r) => checks.push(r),
-            Err(e) => checks.push(CheckResult::error("Function tests", e.to_string())),
+        if subject.tests.is_empty() {
+            checks.push(CheckResult::skip(
+                "Function tests",
+                "no harness vectors defined for this subject",
+            ));
+        } else {
+            match harness::run(subject, &source_files) {
+                Ok(r) => checks.push(r),
+                Err(e) => checks.push(CheckResult::error("Function tests", e.to_string())),
+            }
         }
     }
 
@@ -119,5 +133,53 @@ pub fn run(subject: &Subject, exercise_dir: &Path, cfg: &Config) -> SuiteResult 
         exercise: subject.exercise.to_string(),
         function: subject.function.to_string(),
         checks,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+
+    use super::run;
+    use crate::config::Config;
+    use crate::report::CheckStatus;
+    use crate::subjects::Subject;
+
+    static RUSH_SUBJECT: Subject = Subject {
+        exercise: "rush00",
+        function: "main",
+        c_prototype: "int\tmain(void);",
+        files: &["main.c"],
+        forbidden: &[],
+        description: "Rush00 program entry point.",
+        tests: &[],
+    };
+
+    #[test]
+    fn empty_test_vectors_skip_symbol_and_harness() {
+        let tmp = tempfile::tempdir().expect("tempdir");
+        let ex_dir = tmp.path().join("rush00");
+        fs::create_dir_all(&ex_dir).expect("create rush dir");
+        fs::write(ex_dir.join("main.c"), "int main(void) { return (0); }\n").expect("write C");
+
+        let mut cfg = Config::default();
+        cfg.checks.no_sanitizers = true;
+        cfg.checks.no_valgrind = true;
+
+        let result = run(&RUSH_SUBJECT, &ex_dir, &cfg);
+
+        let symbol = result
+            .checks
+            .iter()
+            .find(|c| c.name == "Symbol check")
+            .expect("symbol check present");
+        assert!(matches!(symbol.status, CheckStatus::Skipped(_)));
+
+        let harness = result
+            .checks
+            .iter()
+            .find(|c| c.name == "Function tests")
+            .expect("function tests check present");
+        assert!(matches!(harness.status, CheckStatus::Skipped(_)));
     }
 }

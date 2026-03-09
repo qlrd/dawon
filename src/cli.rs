@@ -27,6 +27,10 @@ pub struct Cli {
     #[command(subcommand)]
     pub command: Command,
 
+    /// Evaluate rush subjects instead of the default C00 subjects.
+    #[arg(long, global = true)]
+    pub rush: bool,
+
     /// Disable ASAN/UBSAN (faster, but misses runtime errors).
     #[arg(long, global = true)]
     pub no_sanitizers: bool,
@@ -75,4 +79,27 @@ pub enum Command {
         #[arg(short, long)]
         exercise: Option<String>,
     },
+}
+
+#[cfg(test)]
+mod tests {
+    use clap::Parser;
+
+    use super::{Cli, Command};
+
+    #[test]
+    fn parse_check_rush_flag() {
+        let cli = Cli::parse_from(["dawon", "--rush", "check", "--path", "/tmp/C00"]);
+
+        assert!(cli.rush);
+        assert!(matches!(cli.command, Command::Check { .. }));
+    }
+
+    #[test]
+    fn parse_friend_rush_flag() {
+        let cli = Cli::parse_from(["dawon", "--rush", "friend", "--path", "/tmp/Rush00"]);
+
+        assert!(cli.rush);
+        assert!(matches!(cli.command, Command::Friend { .. }));
+    }
 }
