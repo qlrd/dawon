@@ -172,15 +172,12 @@ monsieur-ganesha and vice versa.
 ## Mascot and lore
 
 <p align="center">
-  <img src="assets/mascot.svg" alt="Dawon mascot" width="280">
+  <img src="assets/dawon.png" alt="Dawon mascot" width="280">
 </p>
 
-**Dawon** is the divine lion (or tiger) who carries Mahakali into
-battle. Ancient, patient, and absolutely merciless when the test
-suite demands it.
+**Dawon** sits still and watches. Black ink, full mane, `{}`
+branded on her chest — she does not move until the tests run.
 
-In the lore of this project, Dawon is the inspector who arrives
-after Mademoiselle Norminette has already made her first pass.
 Where Norminette is strict about style, Dawon is strict about
 *correctness* — she does not care how elegant your code looks if
 `INT_MIN` makes it crash.
