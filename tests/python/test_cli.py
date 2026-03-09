@@ -137,6 +137,17 @@ def test_no_valgrind_flag_accepted(run, tmp_path):
     assert "unrecognized" not in r.stderr.lower()
 
 
+def test_rush_flag_listed_in_help(run):
+    r = run("--help")
+    assert r.returncode == 0
+    assert "--rush" in r.stdout
+
+
+def test_rush_flag_accepted(run, tmp_path):
+    r = run("check", "--path", str(tmp_path), "--rush")
+    assert "unrecognized" not in r.stderr.lower()
+
+
 # ── grand summary ──────────────────────────────────────────────────
 
 

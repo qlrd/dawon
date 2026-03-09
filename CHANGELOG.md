@@ -38,6 +38,11 @@ and this project adheres to
 
 ### Added
 
+- CLI: `--rush` flag for `check`/`friend` to evaluate Rush00
+  subjects.
+- Subjects: initial Rush00 support (`rush00/main.c`) with shared
+  static checks (norminette, forbidden scan, compiler, valgrind).
+
 - CI: expanded matrix — Ubuntu 22.04/24.04, macOS 14/15,
   Windows 2019/2022/2025 × Python 3.10–3.13.
 - CI: pinned toolchain SHA, Cargo registry cache, `uv` for

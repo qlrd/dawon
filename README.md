@@ -52,6 +52,7 @@ cargo build --release
 ```bash
 dawon check --path /path/to/C00
 dawon check --path /path/to/C00 --exercise ex00
+dawon check --path /path/to/Rush00 --rush
 ```
 
 ### Check a friend's submission
@@ -67,6 +68,7 @@ dawon friend --path /path/to/friend/C00
 ```
 --no-sanitizers   skip ASAN/UBSAN (step 5 uses plain cc)
 --no-valgrind     skip valgrind (step 6)
+--rush            evaluate Rush00 subjects instead of C00
 ```
 
 ---
@@ -136,6 +138,12 @@ list, all checks enabled).
 | ex06 | `ft_print_comb2` | C(100,2) = 4950 pairs |
 | ex07 | `ft_putnbr` | `INT_MIN`, 0, negative, max |
 | ex08 | `ft_print_combn` | n=1 (digits), n=3 (=ft_print_comb) |
+
+Rush00 currently includes:
+
+| Exercise | Files | Notes |
+|----------|-------|-------|
+| rush00 | `main.c` | Uses static checks only (no harness vectors yet) |
 
 ---
 

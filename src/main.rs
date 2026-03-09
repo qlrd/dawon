@@ -32,7 +32,11 @@ fn main() -> anyhow::Result<()> {
         cfg.checks.no_valgrind = true;
     }
 
-    let subjects = subjects::all_c00();
+    let subjects = if args.rush {
+        subjects::all_rush()
+    } else {
+        subjects::all_c00()
+    };
 
     let to_run: Vec<&Subject> = subjects
         .iter()
