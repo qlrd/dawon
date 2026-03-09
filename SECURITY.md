@@ -44,8 +44,7 @@ maintainer privately before taking any action**:
 https://github.com/qlrd/dawon/security/advisories/new
 ```
 
-Use the subject line: `[Legal] <your organisation> — <brief
-description>`.
+Use the subject line: `[Legal] <your organisation> — <brief description>`.
 
 We are prepared to respond within 48 hours and to remove or
 modify any content immediately upon notification.
