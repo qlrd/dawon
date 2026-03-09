@@ -38,10 +38,9 @@ and this project adheres to
 
 ### Added
 
-- CI: expanded matrix — Ubuntu 22.04/24.04, macOS 14/15,
-  Windows 2019/2022/2025 × Python 3.10–3.13.
-- CI: pinned toolchain SHA, Cargo registry cache, `uv` for
-  Python test dependencies.
+- CI: pinned action SHAs, renamed job to `test`, consolidated
+  `apt-get` installs, Cargo registry cache, `uv` for Python
+  test dependencies.
 - CI: Valgrind install gated to Linux; norminette install
   gated to non-Windows.
 - Docs: `.github/copilot-instructions.md` — repository-level
@@ -77,6 +76,7 @@ and this project adheres to
 - C00 subject definitions (ex00–ex08) with strict test vectors:
   - `ft_print_comb`: C(10,3) = 120 combinations.
   - `ft_print_comb2`: C(100,2) = 4950 pairs.
+  - `ft_print_combn`: generalized for n=1,2,3.
   - `ft_is_negative`: `INT_MIN`, 0, positive, negative.
   - `ft_putchar`: null byte (`'\0'`), DEL (127).
 - SHA-256 commitment model: expected outputs are stored as
@@ -87,7 +87,7 @@ and this project adheres to
 - `--no-sanitizers` and `--no-valgrind` flags for environments
   where those tools are unavailable.
 - Integration test suite (Rust): config, forbidden, harness
-  round-trip (correct + incorrect `ft_putchar`).
+  round-trip (correct + incorrect `ft_gato_probe`).
 - Python functional tests (pytest ≥ 8): CLI output shape, exit
   codes, `--no-sanitizers`, `--no-valgrind`, banner, grand
   summary.
