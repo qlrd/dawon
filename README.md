@@ -18,7 +18,7 @@ Dawon runs a six-layer check pipeline on each exercise:
 | 2 | Symbol present | `libloading` (student `.so`) |
 | 3 | Forbidden functions | regex + `nm -u` symbol table |
 | 4 | Syntax | `cc -Wall -Wextra -Werror -fsyntax-only` |
-| 5 | Harness | fork + pipe, byte-exact `memcmp` with ASAN/UBSAN |
+| 5 | Harness | fork + pipe, SHA-256 commitment with ASAN/UBSAN |
 | 6 | Memory | `valgrind --leak-check=full` |
 
 The harness tests edge cases moulinette does not: `INT_MIN`,
@@ -134,7 +134,7 @@ list, all checks enabled).
 | ex05 | `ft_print_comb` | C(10,3) = 120 combinations |
 | ex06 | `ft_print_comb2` | C(100,2) = 4950 pairs |
 | ex07 | `ft_putnbr` | `INT_MIN`, 0, negative, max |
-| ex08 | `ft_atoi` | leading spaces, signs, overflow |
+| ex08 | `ft_print_combn` | generalise ft_print_comb for n digits |
 
 ---
 
