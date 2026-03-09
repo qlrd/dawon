@@ -28,6 +28,9 @@ pub struct ChecksConfig {
     /// Disable valgrind check.
     #[serde(default)]
     pub no_valgrind: bool,
+    /// Enable symbol export validation.
+    #[serde(default)]
+    pub check_symbol: bool,
     /// Extra forbidden functions added on top of per-exercise defaults.
     #[serde(default)]
     pub extra_forbidden: Vec<String>,

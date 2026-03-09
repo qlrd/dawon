@@ -10,7 +10,7 @@ pub enum CheckStatus {
     Skipped(&'static str),
 }
 
-/// Result of one named check (norminette, compiler, …).
+/// Result of one named check (harness, valgrind, symbol, …).
 #[derive(Debug, Clone)]
 pub struct CheckResult {
     pub name: String,

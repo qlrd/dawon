@@ -13,12 +13,9 @@ use clap::{Parser, Subcommand};
 Dawon evaluates 42-school piscine C submissions with checks that go\n\
 beyond what moulinette does:\n\
 \n\
-  1. Norminette compliance\n\
-  2. Symbol-name verification via libloading\n\
-  3. Forbidden-function detection (regex + nm symbol table)\n\
-  4. Compilation with -Wall -Wextra -Werror + ASAN/UBSAN\n\
-  5. Valgrind --leak-check=full --show-leak-kinds=all\n\
-  6. Per-function test harness (fork+pipe, byte-exact comparison)\n\
+  1. Optional symbol-name verification via libloading\n\
+  2. Valgrind --leak-check=full --show-leak-kinds=all\n\
+  3. Per-function test harness (fork+pipe, byte-exact comparison)\n\
      Includes edge cases moulinette skips: INT_MIN, null byte, \\0.\n\
 \n\
 Use 'check' to evaluate yourself, 'friend' for peer evaluation."
@@ -34,6 +31,10 @@ pub struct Cli {
     /// Disable valgrind check (faster).
     #[arg(long, global = true)]
     pub no_valgrind: bool,
+
+    /// Enable symbol-export verification (off by default).
+    #[arg(long, global = true)]
+    pub check_symbol: bool,
 }
 
 #[derive(Subcommand, Debug)]

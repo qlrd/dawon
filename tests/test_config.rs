@@ -9,6 +9,7 @@ fn missing_file_returns_defaults() {
     assert!(cfg.project.module.is_none());
     assert!(!cfg.checks.no_sanitizers);
     assert!(!cfg.checks.no_valgrind);
+    assert!(!cfg.checks.check_symbol);
     assert!(cfg.checks.extra_forbidden.is_empty());
 }
 
@@ -23,6 +24,7 @@ module = "C00"
 
 [checks]
 no_valgrind = true
+check_symbol = true
 extra_forbidden = ["exit", "abort"]
 "#,
     )
@@ -31,6 +33,7 @@ extra_forbidden = ["exit", "abort"]
     let cfg = config::load(tmp.path()).unwrap();
     assert_eq!(cfg.project.module.as_deref(), Some("C00"));
     assert!(cfg.checks.no_valgrind);
+    assert!(cfg.checks.check_symbol);
     assert!(!cfg.checks.no_sanitizers);
     assert_eq!(cfg.checks.extra_forbidden, vec!["exit", "abort"]);
 }

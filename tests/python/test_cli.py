@@ -1,12 +1,12 @@
 """Functional tests for the dawon CLI binary.
 
 These tests invoke the compiled binary as a subprocess and assert
-on exit code and stdout/stderr content.  They cover:
+on exit code and stdout/stderr content. They cover:
 
 - Version / help flags
 - Missing directory handling
-- clean submission → forbidden check passes
-- printf-using submission → forbidden check fails
+- clean submission → harness runs
+- symbol check flag behavior
 - --no-sanitizers flag accepted
 - --no-valgrind flag accepted
 """
@@ -63,8 +63,8 @@ def test_check_empty_module_dir_missing_files(run, tmp_path):
     assert "ex00" in r.stdout.lower()
 
 
-def test_check_clean_ft_putchar_forbidden_passes(run, tmp_path, module_dir):
-    """A write()-only ft_putchar.c must pass the forbidden check."""
+def test_check_clean_ft_putchar_runs_harness(run, tmp_path, module_dir):
+    """A write()-only ft_putchar.c must run harness checks."""
     module_dir("ex00", "ft_putchar.c", "clean/ft_putchar.c")
     r = run(
         "check",
@@ -73,7 +73,7 @@ def test_check_clean_ft_putchar_forbidden_passes(run, tmp_path, module_dir):
         "--no-valgrind",
         "--no-sanitizers",
     )
-    assert "ft_putchar" in r.stdout
+    assert "Function tests" in r.stdout
 
 
 def test_check_shows_exercise_name(run, tmp_path, module_dir):
@@ -89,23 +89,32 @@ def test_check_shows_exercise_name(run, tmp_path, module_dir):
     assert "ex00" in r.stdout
 
 
-def test_check_printf_submission_fails(run, tmp_path):
-    """ft_putchar using printf must fail the forbidden-functions check."""
+def test_check_symbol_flag_enables_symbol_step(run, tmp_path):
+    """Symbol validation appears only with --check-symbol."""
     ex_dir = tmp_path / "ex00"
     ex_dir.mkdir()
     shutil.copy(
-        FIXTURES / "forbidden" / "ft_putchar_printf.c",
+        FIXTURES / "clean" / "ft_putchar.c",
         ex_dir / "ft_putchar.c",
     )
-    r = run(
+    no_symbol = run(
         "check",
         "--path", str(tmp_path),
         "--exercise", "ex00",
         "--no-valgrind",
         "--no-sanitizers",
     )
-    assert r.returncode == 1
-    assert "FAIL" in r.stdout
+    assert "Symbol" not in no_symbol.stdout
+
+    with_symbol = run(
+        "check",
+        "--path", str(tmp_path),
+        "--exercise", "ex00",
+        "--no-valgrind",
+        "--no-sanitizers",
+        "--check-symbol",
+    )
+    assert "Symbol" in with_symbol.stdout
 
 
 def test_check_prints_pass_or_fail_for_each_step(run, tmp_path):

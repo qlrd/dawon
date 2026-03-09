@@ -10,16 +10,13 @@ vahana of Mahadurga — guardian, merciless, thorough.
 
 ## What it does
 
-Dawon runs a six-layer check pipeline on each exercise:
+Dawon runs this check pipeline on each exercise:
 
 | Step | Check | Tool |
 |------|-------|------|
-| 1 | Norminette | `norminette` subprocess |
-| 2 | Symbol present | `libloading` (student `.so`) |
-| 3 | Forbidden functions | regex + `nm -u` symbol table |
-| 4 | Syntax | `cc -Wall -Wextra -Werror -fsyntax-only` |
-| 5 | Harness | fork + pipe, SHA-256 with ASAN/UBSAN |
-| 6 | Memory | `valgrind --leak-check=full` |
+| 1 | Symbol present (optional) | `libloading` (student `.so`) |
+| 2 | Memory | `valgrind --leak-check=full` |
+| 3 | Harness | fork + pipe, SHA-256 with ASAN/UBSAN |
 
 The harness tests edge cases moulinette does not: `INT_MIN`,
 null bytes (`'\0'`), DEL (127), and all C(10,3) / C(100,2)
@@ -64,27 +61,25 @@ dawon friend --path /path/to/friend/C00
 ### Flags
 
 ```
---no-sanitizers   skip ASAN/UBSAN (step 5 uses plain cc)
---no-valgrind     skip valgrind (step 6)
+--no-sanitizers   build valgrind target without ASAN/UBSAN
+--no-valgrind     skip valgrind (step 2)
+--check-symbol    enable symbol-presence check (step 1)
 ```
 
 ---
 
 ## Configuration
 
-Create `.gato.toml` in the module directory to override defaults:
+Create `.dawon.toml` in the module directory to override defaults:
 
 ```toml
-[forbidden]
-functions = ["printf", "malloc", "free"]
-
 [checks]
 no_sanitizers = false
 no_valgrind   = false
+check_symbol  = false
 ```
 
-If `.gato.toml` is absent, Dawon uses safe defaults (empty forbidden
-list, all checks enabled).
+If `.dawon.toml` is absent, Dawon uses safe defaults.
 
 ---
 
@@ -102,21 +97,18 @@ list, all checks enabled).
   ex00 — ft_putchar
   Write a function that outputs a char to stdout.
 ────────────────────────────────────────────────────────────
-  [1/6] Norminette                             PASS
-  [2/6] Symbol: ft_putchar                     PASS
-  [3/6] Forbidden functions                    PASS
-  [4/6] Compiler                               PASS
-  [5/6] Harness (ASAN/UBSAN)                   PASS
-  [6/6] Valgrind                               PASS
+  [1/3] Symbol: ft_putchar                     PASS
+  [2/3] Valgrind                               PASS
+  [3/3] Harness (ASAN/UBSAN)                   PASS
 
-  Summary: 6/6 passed
+  Summary: 3/3 passed
 
 ════════════════════════════════════════════════════════════
   GRAND SUMMARY
 ════════════════════════════════════════════════════════════
-  ex00 (ft_putchar)   6/6
+  ex00 (ft_putchar)   3/3
 ════════════════════════════════════════════════════════════
-  6/6 checks passed
+  3/3 checks passed
 ════════════════════════════════════════════════════════════
 ```
 

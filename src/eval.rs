@@ -3,9 +3,9 @@
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use crate::checks::{compiler, forbidden, harness, norminette, valgrind};
+use crate::checks::{compiler, harness, valgrind};
 use crate::config::Config;
-use crate::report::{CheckResult, SuiteResult};
+use crate::report::{CheckResult, CheckStatus, SuiteResult};
 use crate::subjects::Subject;
 
 /// Resolve every required source file inside *exercise_dir*.
@@ -62,57 +62,50 @@ pub fn run(subject: &Subject, exercise_dir: &Path, cfg: &Config) -> SuiteResult 
     };
     let source_paths: Vec<&Path> = source_files.iter().map(PathBuf::as_path).collect();
 
-    // ── 1. norminette ────────────────────────────────────────────
-    checks.push(norminette::check(&source_paths));
-
-    // ── 2. symbol name (libloading) ──────────────────────────────
-    checks.push(harness::check_symbol(source_paths[0], subject.function));
-
-    // ── 3. forbidden functions: regex + nm ───────────────────────
-    let tmp = match tempfile::TempDir::new() {
-        Ok(t) => t,
-        Err(e) => {
-            checks.push(CheckResult::error("Setup", e.to_string()));
-            return SuiteResult {
-                exercise: subject.exercise.to_string(),
-                function: subject.function.to_string(),
-                checks,
-            };
-        }
-    };
-
-    let object = tmp.path().join("student.o");
-    let obj_ok = compiler::compile_to_object(source_paths[0], &object).is_pass();
-    let obj_path = obj_ok.then_some(object.as_path());
-
-    let mut all_forbidden: Vec<&str> = subject.forbidden.to_vec();
-    let extra: Vec<&str> = cfg
-        .checks
-        .extra_forbidden
-        .iter()
-        .map(String::as_str)
-        .collect();
-    all_forbidden.extend_from_slice(&extra);
-    checks.push(forbidden::check(source_paths[0], obj_path, &all_forbidden));
-
-    // ── 4. compiler with ASAN/UBSAN ──────────────────────────────
-    let sanitize = !cfg.checks.no_sanitizers;
-    let binary = tmp.path().join("student_bin");
-    let compile_res = compiler::compile(&source_paths, &binary, sanitize);
-    let compile_ok = compile_res.is_pass();
-    checks.push(compile_res);
-
-    // ── 5. valgrind ──────────────────────────────────────────────
-    if compile_ok && !cfg.checks.no_valgrind {
-        checks.push(valgrind::check(&binary, Duration::from_secs(10)));
+    // ── 1. optional symbol name (libloading) ─────────────────────
+    if cfg.checks.check_symbol {
+        checks.push(harness::check_symbol(source_paths[0], subject.function));
     }
 
-    // ── 6. function harness ──────────────────────────────────────
-    if compile_ok {
-        match harness::run(subject, &source_files) {
-            Ok(r) => checks.push(r),
-            Err(e) => checks.push(CheckResult::error("Function tests", e.to_string())),
+    // ── 2. valgrind ───────────────────────────────────────────────
+    if !cfg.checks.no_valgrind {
+        let tmp = match tempfile::TempDir::new() {
+            Ok(t) => t,
+            Err(e) => {
+                checks.push(CheckResult::error("Setup", e.to_string()));
+                return SuiteResult {
+                    exercise: subject.exercise.to_string(),
+                    function: subject.function.to_string(),
+                    checks,
+                };
+            }
+        };
+
+        let sanitize = !cfg.checks.no_sanitizers;
+        let binary = tmp.path().join("student_bin");
+        let compile_res = compiler::compile(&source_paths, &binary, sanitize);
+        if compile_res.is_pass() {
+            checks.push(valgrind::check(&binary, Duration::from_secs(10)));
+        } else {
+            checks.push(CheckResult {
+                name: "Valgrind".to_string(),
+                status: match compile_res.status {
+                    CheckStatus::Fail(msgs) => CheckStatus::Fail(msgs),
+                    CheckStatus::Error(msg) => CheckStatus::Error(msg),
+                    CheckStatus::Skipped(reason) => CheckStatus::Skipped(reason),
+                    CheckStatus::Pending => CheckStatus::Pending,
+                    CheckStatus::Pass => CheckStatus::Fail(vec![
+                        "unexpected compile state while preparing valgrind".to_string(),
+                    ]),
+                },
+            });
         }
+    }
+
+    // ── 3. function harness ───────────────────────────────────────
+    match harness::run(subject, &source_files) {
+        Ok(r) => checks.push(r),
+        Err(e) => checks.push(CheckResult::error("Function tests", e.to_string())),
     }
 
     SuiteResult {

@@ -31,6 +31,9 @@ fn main() -> anyhow::Result<()> {
     if args.no_valgrind {
         cfg.checks.no_valgrind = true;
     }
+    if args.check_symbol {
+        cfg.checks.check_symbol = true;
+    }
 
     let subjects = subjects::all_c00();
 
