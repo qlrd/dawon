@@ -57,21 +57,28 @@ printf 'expected output' | sha256sum
 Use the `hex!()` macro from `hex-literal`:
 
 ```rust
-expected_sha256: &hex!("abcdef...32 hex chars..."),
+expected_sha256: &hex!("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"),
 ```
+
+SHA-256 produces 32 bytes = **64 hexadecimal characters**.
 
 ---
 
 ## Platform guards
 
+CI currently runs on Linux only.  The harness is POSIX-only and
+will not compile on Windows.  macOS is welcome for local development
+but is not in the CI matrix.
+
 | Feature | Guard |
 |---------|-------|
 | Round-trip harness tests | `#[cfg(unix)]` |
-| Valgrind step | `if: runner.os == 'Linux'` in CI |
-| norminette step | `if: runner.os != 'Windows'` in CI |
-| `detect_leaks=1` in ASAN_OPTIONS | Linux only — LSan is not available on macOS |
+| `detect_leaks=1` in ASAN_OPTIONS | Linux only — LSan not available on macOS |
 
-Never set `ASAN_OPTIONS=detect_leaks=1` unconditionally.
+If a multi-OS CI matrix is ever added:
+- Gate Valgrind with `if: runner.os == 'Linux'`
+- Gate norminette with `if: runner.os != 'Windows'`
+- Do not set `ASAN_OPTIONS=detect_leaks=1` on macOS runners
 
 ---
 
