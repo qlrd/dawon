@@ -150,17 +150,24 @@ Every commit merged to `main` must pass CI on its own.  Do not
 bundle a fix for a red CI with unrelated changes so that the bundle
 passes while the individual commit would not.
 
-Practically: before pushing, test each commit in isolation:
+Practically: to verify every commit on a multi-commit branch:
 
 ```bash
-git stash        # stash uncommitted work
-cargo fmt --check
-cargo clippy -- -D warnings
-cargo test
-git stash pop    # restore
+git rebase -i --exec 'just check' main
 ```
 
-Or use `git rebase -i` to squash/fixup commits that only exist to
+This replays each commit and runs the full CI suite (`fmt-check`,
+`clippy`, `cargo test`, Python tests) after every one.  If any
+step fails the rebase stops at that commit so you can fix and
+continue.
+
+If you have only one commit or just want to check the tip:
+
+```bash
+just check
+```
+
+Use `git rebase -i` to squash or fixup commits that only exist to
 "fix the previous commit" before opening the PR.
 
 The CI ruleset enforces linear history.  A commit that breaks
