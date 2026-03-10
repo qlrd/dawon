@@ -43,12 +43,10 @@ and this project adheres to
 - Subjects: initial Rush00 support (`Rush00/main.c`) with shared
   static checks (norminette, forbidden scan, compiler, valgrind).
 
-- CI: expanded matrix — Ubuntu 22.04/24.04, macOS 14/15,
-  Windows 2019/2022/2025 × Python 3.10–3.13.
+- CI: ubuntu-latest, macos-latest, debian-stable (stable +
+  MSRV 1.85); Valgrind gated to Linux.
 - CI: pinned toolchain SHA, Cargo registry cache, `uv` for
   Python test dependencies.
-- CI: Valgrind install gated to Linux; norminette install
-  gated to non-Windows.
 - Docs: `.github/copilot-instructions.md` — repository-level
   Copilot custom instructions mirroring `CLAUDE.md`.
 - Docs: atomic-commits policy in `CONTRIBUTING.md` —
