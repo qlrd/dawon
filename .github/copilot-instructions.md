@@ -91,6 +91,9 @@ If a multi-OS CI matrix is ever added:
 - Keep the subject line purely semantic; do not add lore to
   `<type>[(<scope>)][!]: <description>`
 - Lore is optional flavour in the commit body after technical details
+- Once the PR number is known, include it in commit metadata by
+  appending `(#N)` to the subject line or adding `Closes #N` /
+  `Refs #N` in the commit body footer
 - Every commit merged to `main` must pass CI on its own (atomic
   commits — do not bundle a CI fix with unrelated changes)
 - All commits must include `Signed-off-by:` (DCO); Monsieur

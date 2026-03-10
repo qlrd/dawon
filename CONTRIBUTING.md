@@ -222,11 +222,15 @@ This project uses **Conventional Commits 1.0.0**.
 - Keep the subject line purely semantic. Lore is optional flavour,
   but never in `<type>[(<scope>)][!]: <description>`.
 - Lore is welcome in the commit body after the technical explanation.
+- Once the PR number is known, include traceability to the PR
+  discussion: append `(#N)` in the subject or add `Closes #N` /
+  `Refs #N` in the body footer.
 
 Examples:
 
 ```
 feat(harness): add INT_MIN edge case for ft_putnbr
+feat(harness): add drain loop (#19)
 fix(forbidden): handle multi-line macro definitions
 docs: update configuration section in README.md
 test: add round-trip for correct ft_print_comb
