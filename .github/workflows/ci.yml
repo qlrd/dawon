@@ -10,6 +10,20 @@ permissions:
   contents: read
 
 jobs:
+  commit-messages:
+    name: commit messages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Validate commit messages
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 .github/scripts/validate_commit_messages.py
+
   test:
     name: test / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
