@@ -143,3 +143,29 @@ If a multi-OS CI matrix is ever added:
 - CI must be green on every commit before merging
 - Merge method: **Rebase and merge** (squash and merge are also
   allowed; merge commits are not)
+
+---
+
+## Feedback loop with @copilot
+
+Every review comment, NACK, tACK, or concern posted in response
+to a Copilot-opened PR or Copilot comment **must** address
+`@copilot` directly.  This notifies the agent and keeps the
+review thread active.
+
+Examples:
+
+```
+@copilot NACK — remove the memcmp regression in check_output
+before this can merge.
+
+@copilot tACK 3f9a1c2 — tested locally, fmt + clippy + tests
+all pass.
+
+@copilot this approach leaks the pipe fd on error; close it
+before returning Err.
+```
+
+Do not leave review concerns as unaddressed prose.  If the
+concern is actionable, mention `@copilot` so the agent can
+act on it.
