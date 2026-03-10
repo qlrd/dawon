@@ -35,8 +35,6 @@ pub struct Subject {
     pub c_prototype: &'static str,
     /// Source files the student must provide (relative to exercise dir).
     pub files: &'static [&'static str],
-    /// Functions forbidden in this exercise.
-    pub forbidden: &'static [&'static str],
     /// One-line description shown in the TUI and boomer CLI.
     pub description: &'static str,
     /// Test vectors for the harness.

@@ -5,8 +5,7 @@ on exit code and stdout/stderr content.  They cover:
 
 - Version / help flags
 - Missing directory handling
-- clean submission → forbidden check passes
-- printf-using submission → forbidden check fails
+- clean submission → checks pass
 - --no-sanitizers flag accepted
 - --no-valgrind flag accepted
 """
@@ -63,8 +62,8 @@ def test_check_empty_module_dir_missing_files(run, tmp_path):
     assert "ex00" in r.stdout.lower()
 
 
-def test_check_clean_ft_putchar_forbidden_passes(run, tmp_path, module_dir):
-    """A write()-only ft_putchar.c must pass the forbidden check."""
+def test_check_clean_ft_putchar_passes(run, tmp_path, module_dir):
+    """A write()-only ft_putchar.c must pass all checks."""
     module_dir("ex00", "ft_putchar.c", "clean/ft_putchar.c")
     r = run(
         "check",
@@ -88,24 +87,6 @@ def test_check_shows_exercise_name(run, tmp_path, module_dir):
     )
     assert "ex00" in r.stdout
 
-
-def test_check_printf_submission_fails(run, tmp_path):
-    """ft_putchar using printf must fail the forbidden-functions check."""
-    ex_dir = tmp_path / "ex00"
-    ex_dir.mkdir()
-    shutil.copy(
-        FIXTURES / "forbidden" / "ft_putchar_printf.c",
-        ex_dir / "ft_putchar.c",
-    )
-    r = run(
-        "check",
-        "--path", str(tmp_path),
-        "--exercise", "ex00",
-        "--no-valgrind",
-        "--no-sanitizers",
-    )
-    assert r.returncode == 1
-    assert "FAIL" in r.stdout
 
 
 def test_check_prints_pass_or_fail_for_each_step(run, tmp_path):

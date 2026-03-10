@@ -34,7 +34,6 @@ static PROBE_SUBJECT: Subject = Subject {
     function: "ft_gato_probe",
     c_prototype: "void\tft_gato_probe(char c);",
     files: &["ft_gato_probe.c"],
-    forbidden: &[],
     description: "harness infrastructure probe — not a piscine exercise",
     tests: PROBE_TESTS,
 };
