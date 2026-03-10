@@ -11,7 +11,6 @@ pub static ALL: &[Subject] = &[Subject {
     function: "main",
     c_prototype: "int\tmain(void);",
     files: &["main.c"],
-    forbidden: &[],
     description: "Rush00 program entry point.",
     tests: &[],
 }];

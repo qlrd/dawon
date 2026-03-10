@@ -9,7 +9,6 @@ fn missing_file_returns_defaults() {
     assert!(cfg.project.module.is_none());
     assert!(!cfg.checks.no_sanitizers);
     assert!(!cfg.checks.no_valgrind);
-    assert!(cfg.checks.extra_forbidden.is_empty());
 }
 
 #[test]
@@ -23,7 +22,6 @@ module = "C00"
 
 [checks]
 no_valgrind = true
-extra_forbidden = ["exit", "abort"]
 "#,
     )
     .unwrap();
@@ -32,7 +30,6 @@ extra_forbidden = ["exit", "abort"]
     assert_eq!(cfg.project.module.as_deref(), Some("C00"));
     assert!(cfg.checks.no_valgrind);
     assert!(!cfg.checks.no_sanitizers);
-    assert_eq!(cfg.checks.extra_forbidden, vec!["exit", "abort"]);
 }
 
 #[test]

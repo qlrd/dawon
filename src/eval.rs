@@ -3,7 +3,7 @@
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use crate::checks::{compiler, forbidden, harness, norminette, valgrind};
+use crate::checks::{compiler, harness, valgrind};
 use crate::config::Config;
 use crate::report::{CheckResult, SuiteResult};
 use crate::subjects::Subject;
@@ -62,10 +62,7 @@ pub fn run(subject: &Subject, exercise_dir: &Path, cfg: &Config) -> SuiteResult 
     };
     let source_paths: Vec<&Path> = source_files.iter().map(PathBuf::as_path).collect();
 
-    // ── 1. norminette ────────────────────────────────────────────
-    checks.push(norminette::check(&source_paths));
-
-    // ── 2. symbol name (libloading) ──────────────────────────────
+    // ── 1. symbol name (libloading) ──────────────────────────────
     if subject.tests.is_empty() {
         checks.push(CheckResult::skip(
             "Symbol check",
@@ -75,11 +72,11 @@ pub fn run(subject: &Subject, exercise_dir: &Path, cfg: &Config) -> SuiteResult 
         checks.push(harness::check_symbol(source_paths[0], subject.function));
     }
 
-    // ── 3. forbidden functions: regex + nm ───────────────────────
+    // ── 2. build with ASAN/UBSAN (prerequisite for harness + valgrind) ──
     let tmp = match tempfile::TempDir::new() {
         Ok(t) => t,
         Err(e) => {
-            checks.push(CheckResult::error("Setup", e.to_string()));
+            checks.push(CheckResult::error("Build", e.to_string()));
             return SuiteResult {
                 exercise: subject.exercise.to_string(),
                 function: subject.function.to_string(),
@@ -88,34 +85,19 @@ pub fn run(subject: &Subject, exercise_dir: &Path, cfg: &Config) -> SuiteResult 
         }
     };
 
-    let object = tmp.path().join("student.o");
-    let obj_ok = compiler::compile_to_object(source_paths[0], &object).is_pass();
-    let obj_path = obj_ok.then_some(object.as_path());
-
-    let mut all_forbidden: Vec<&str> = subject.forbidden.to_vec();
-    let extra: Vec<&str> = cfg
-        .checks
-        .extra_forbidden
-        .iter()
-        .map(String::as_str)
-        .collect();
-    all_forbidden.extend_from_slice(&extra);
-    checks.push(forbidden::check(source_paths[0], obj_path, &all_forbidden));
-
-    // ── 4. compiler with ASAN/UBSAN ──────────────────────────────
     let sanitize = !cfg.checks.no_sanitizers;
     let binary = tmp.path().join("student_bin");
-    let compile_res = compiler::compile(&source_paths, &binary, sanitize);
-    let compile_ok = compile_res.is_pass();
-    checks.push(compile_res);
+    let build_res = compiler::compile(&source_paths, &binary, sanitize);
+    let build_ok = build_res.is_pass();
+    checks.push(build_res);
 
-    // ── 5. valgrind ──────────────────────────────────────────────
-    if compile_ok && !cfg.checks.no_valgrind {
+    // ── 3. valgrind ──────────────────────────────────────────────
+    if build_ok && !cfg.checks.no_valgrind {
         checks.push(valgrind::check(&binary, Duration::from_secs(10)));
     }
 
-    // ── 6. function harness ──────────────────────────────────────
-    if compile_ok {
+    // ── 4. function harness ──────────────────────────────────────
+    if build_ok {
         if subject.tests.is_empty() {
             checks.push(CheckResult::skip(
                 "Function tests",

@@ -28,9 +28,6 @@ pub struct ChecksConfig {
     /// Disable valgrind check.
     #[serde(default)]
     pub no_valgrind: bool,
-    /// Extra forbidden functions added on top of per-exercise defaults.
-    #[serde(default)]
-    pub extra_forbidden: Vec<String>,
 }
 
 /// Load `.dawon.toml` from *root*, returning defaults if absent.
