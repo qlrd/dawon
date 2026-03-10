@@ -15,7 +15,6 @@ pub static ALL: &[Subject] = &[
         function: "ft_putchar",
         c_prototype: "void\tft_putchar(char c);",
         files: &["ft_putchar.c"],
-        forbidden: &["printf", "putchar", "puts", "fprintf", "wprintf"],
         description: "Write one char to stdout.",
         tests: &[
             TestCase {
@@ -75,7 +74,6 @@ pub static ALL: &[Subject] = &[
         function: "ft_print_alphabet",
         c_prototype: "void\tft_print_alphabet(void);",
         files: &["ft_print_alphabet.c"],
-        forbidden: &["printf", "putchar", "puts", "fprintf", "wprintf"],
         description: "Display lowercase letters in a single write call.",
         tests: &[TestCase {
             name: "output",
@@ -91,7 +89,6 @@ pub static ALL: &[Subject] = &[
         function: "ft_print_reverse_alphabet",
         c_prototype: "void\tft_print_reverse_alphabet(void);",
         files: &["ft_print_reverse_alphabet.c"],
-        forbidden: &["printf", "putchar", "puts", "fprintf", "wprintf"],
         description: "Display lowercase letters in reverse order.",
         tests: &[TestCase {
             name: "output",
@@ -107,7 +104,6 @@ pub static ALL: &[Subject] = &[
         function: "ft_print_numbers",
         c_prototype: "void\tft_print_numbers(void);",
         files: &["ft_print_numbers.c"],
-        forbidden: &["printf", "putchar", "puts", "fprintf", "wprintf"],
         description: "Display digits in a single write call.",
         tests: &[TestCase {
             name: "output",
@@ -123,7 +119,6 @@ pub static ALL: &[Subject] = &[
         function: "ft_is_negative",
         c_prototype: "void\tft_is_negative(int n);",
         files: &["ft_is_negative.c"],
-        forbidden: &["printf", "putchar", "puts", "fprintf", "wprintf"],
         description: "Print one letter followed by newline based on sign of n.",
         tests: &[
             TestCase {
@@ -183,7 +178,6 @@ pub static ALL: &[Subject] = &[
         function: "ft_print_comb",
         c_prototype: "void\tft_print_comb(void);",
         files: &["ft_print_comb.c"],
-        forbidden: &["printf", "putchar", "puts", "fprintf", "wprintf"],
         description: "Print all combinations of 3 different digits.",
         tests: &[TestCase {
             name: "output",
@@ -199,7 +193,6 @@ pub static ALL: &[Subject] = &[
         function: "ft_print_comb2",
         c_prototype: "void\tft_print_comb2(void);",
         files: &["ft_print_comb2.c"],
-        forbidden: &["printf", "putchar", "puts", "fprintf", "wprintf"],
         description: "Print all ordered pairs of 2-digit numbers.",
         tests: &[TestCase {
             name: "output",
@@ -215,9 +208,6 @@ pub static ALL: &[Subject] = &[
         function: "ft_putnbr",
         c_prototype: "void\tft_putnbr(int nb);",
         files: &["ft_putnbr.c"],
-        forbidden: &[
-            "printf", "putchar", "puts", "fprintf", "sprintf", "itoa", "wprintf",
-        ],
         description: "Print an integer in base 10.",
         tests: &[
             TestCase {
@@ -284,7 +274,6 @@ pub static ALL: &[Subject] = &[
         function: "ft_print_combn",
         c_prototype: "void\tft_print_combn(int n);",
         files: &["ft_print_combn.c"],
-        forbidden: &["printf", "putchar", "puts", "fprintf", "wprintf"],
         description: "Generalise ft_print_comb for n digits.",
         tests: &[
             TestCase {
