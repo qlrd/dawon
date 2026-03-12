@@ -61,6 +61,15 @@ Norminette and forbidden-function checks are handled by
 cargo install --git https://github.com/qlrd/dawon
 ```
 
+Or download a pre-built binary from the latest GitHub Release
+(example for Debian/Linux x86_64):
+
+```bash
+curl -fsSL \
+  https://github.com/qlrd/dawon/releases/latest/download/dawon-linux-x86_64 \
+  -o ~/.local/bin/dawon && chmod +x ~/.local/bin/dawon
+```
+
 Or build from source:
 
 ```bash
