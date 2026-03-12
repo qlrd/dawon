@@ -1,6 +1,7 @@
 //! Rust integration tests for .dawon.toml config loading.
 
 use dawon::config;
+use dawon::error::Error;
 
 #[test]
 fn missing_file_returns_defaults() {
@@ -36,7 +37,8 @@ no_valgrind = true
 fn malformed_toml_returns_error() {
     let tmp = tempfile::TempDir::new().unwrap();
     std::fs::write(tmp.path().join(".dawon.toml"), "not toml {{{{").unwrap();
-    assert!(config::load(tmp.path()).is_err());
+    let err = config::load(tmp.path()).expect_err("malformed toml should error");
+    assert!(matches!(err, Error::InvalidConfig { .. }));
 }
 
 #[test]

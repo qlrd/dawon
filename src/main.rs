@@ -9,6 +9,7 @@ use clap::Parser;
 use colored::Colorize;
 
 use dawon::config;
+use dawon::error::{Error, Result};
 use dawon::eval;
 use dawon::report::{CheckStatus, SuiteResult};
 use dawon::subjects::{self, Subject};
@@ -16,7 +17,14 @@ use dawon::subjects::{self, Subject};
 mod cli;
 use cli::{Cli, Command};
 
-fn main() -> anyhow::Result<()> {
+fn main() {
+    if let Err(err) = run() {
+        eprintln!("{} {}", "error:".red().bold(), err);
+        std::process::exit(1);
+    }
+}
+
+fn run() -> Result<()> {
     let args = Cli::parse();
 
     print_banner();
@@ -87,10 +95,14 @@ fn main() -> anyhow::Result<()> {
 
 // ── target resolution ──────────────────────────────────────────────
 
-fn resolve_target(args: &Cli) -> anyhow::Result<(PathBuf, Option<String>, String)> {
+fn resolve_target(args: &Cli) -> Result<(PathBuf, Option<String>, String)> {
     match &args.command {
         Command::Check { path, exercise } => {
-            Ok((path.clone(), exercise.clone(), "myself".to_string()))
+            if path.is_dir() {
+                Ok((path.clone(), exercise.clone(), "myself".to_string()))
+            } else {
+                Err(Error::MissingPath { path: path.clone() })
+            }
         }
         Command::Friend {
             login,
@@ -102,18 +114,65 @@ fn resolve_target(args: &Cli) -> anyhow::Result<(PathBuf, Option<String>, String
                 p.clone()
             } else if let Some(login) = login {
                 let m = module.as_deref().unwrap_or("C00");
-                eval::find_friend_path(login, m).ok_or_else(|| {
-                    anyhow::anyhow!("cannot find {login}/{m} — use --path to specify directly")
+                eval::find_friend_path(login, m).ok_or_else(|| Error::FriendPathNotFound {
+                    login: login.clone(),
+                    module: m.to_string(),
                 })?
             } else {
-                anyhow::bail!("friend: provide --login or --path");
+                return Err(Error::MissingFriendTarget);
             };
+            if !resolved.is_dir() {
+                return Err(Error::MissingPath { path: resolved });
+            }
             let label = login
                 .as_deref()
                 .map(|l| format!("friend:{l}"))
                 .unwrap_or_else(|| "friend".to_string());
             Ok((resolved, exercise.clone(), label))
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::PathBuf;
+
+    use super::{resolve_target, Cli, Command};
+    use dawon::error::Error;
+
+    #[test]
+    fn resolve_target_requires_login_or_path_for_friend() {
+        let args = Cli {
+            command: Command::Friend {
+                login: None,
+                path: None,
+                module: None,
+                exercise: None,
+            },
+            rush: false,
+            no_sanitizers: false,
+            no_valgrind: false,
+        };
+
+        let err = resolve_target(&args).expect_err("friend requires --login or --path");
+        assert!(matches!(err, Error::MissingFriendTarget));
+    }
+
+    #[test]
+    fn resolve_target_fails_when_check_path_is_missing() {
+        let missing = PathBuf::from("/definitely/missing/path");
+        let args = Cli {
+            command: Command::Check {
+                path: missing.clone(),
+                exercise: None,
+            },
+            rush: false,
+            no_sanitizers: false,
+            no_valgrind: false,
+        };
+
+        let err = resolve_target(&args).expect_err("missing path should error");
+        assert!(matches!(err, Error::MissingPath { path } if path == missing));
     }
 }
 
