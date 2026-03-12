@@ -299,4 +299,152 @@ pub static ALL: &[Subject] = &[
             },
         ],
     },
+    // ── ex09 ───────────────────────────────────────────────────────
+    Subject {
+        exercise: "ex09",
+        function: "ft_display_file",
+        c_prototype: "void\tft_display_file(char *filename);",
+        files: &["ft_display_file.c"],
+        description: "Display file contents to stdout.",
+        tests: &[
+            TestCase {
+                name: "text file",
+                c_call: "FILE *f = fopen(\"dawon_ex09.txt\", \"w\"); fputs(\"dawon\\n\", f); fclose(f); ft_display_file(\"dawon_ex09.txt\"); unlink(\"dawon_ex09.txt\");",
+                expected_sha256: &hex!(
+                    "977911f1488ef55c98e9891a8e5baf2afc72dff6ab71569b5955045ee381e5fc"
+                ),
+            },
+            TestCase {
+                name: "binary file",
+                c_call: "unsigned char buf[3] = {0x41, 0x00, 0x7F}; FILE *f = fopen(\"dawon_ex09.bin\", \"wb\"); fwrite(buf, 1, 3, f); fclose(f); ft_display_file(\"dawon_ex09.bin\"); unlink(\"dawon_ex09.bin\");",
+                expected_sha256: &hex!(
+                    "3153013aace69ac4f0660c9b587bcd057f2f70502453654d85d41aa7300fa0da"
+                ),
+            },
+        ],
+    },
+    // ── ex10 ───────────────────────────────────────────────────────
+    Subject {
+        exercise: "ex10",
+        function: "ft_strdup",
+        c_prototype: "char\t*ft_strdup(char *src);",
+        files: &["ft_strdup.c"],
+        description: "Duplicate a string using malloc.",
+        tests: &[
+            TestCase {
+                name: "\"hello\"",
+                c_call: "char *dup = ft_strdup(\"hello\"); if (dup) { write(1, dup, strlen(dup)); free(dup); }",
+                expected_sha256: &hex!(
+                    "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+                ),
+            },
+            TestCase {
+                name: "\"\"",
+                c_call: "char *dup = ft_strdup(\"\"); if (dup) { write(1, dup, strlen(dup)); free(dup); }",
+                expected_sha256: &hex!(
+                    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                ),
+            },
+            TestCase {
+                name: "\"\\x7f\"",
+                c_call: "char *dup = ft_strdup(\"\\x7f\"); if (dup) { write(1, dup, 1); free(dup); }",
+                expected_sha256: &hex!(
+                    "620bfdaa346b088fb49998d92f19a7eaf6bfc2fb0aee015753966da1028cb731"
+                ),
+            },
+        ],
+    },
+    // ── ex11 ───────────────────────────────────────────────────────
+    Subject {
+        exercise: "ex11",
+        function: "ft_putstr",
+        c_prototype: "void\tft_putstr(char *str);",
+        files: &["ft_putstr.c"],
+        description: "Write a string to stdout.",
+        tests: &[
+            TestCase {
+                name: "\"hello\"",
+                c_call: "ft_putstr(\"hello\");",
+                expected_sha256: &hex!(
+                    "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+                ),
+            },
+            TestCase {
+                name: "\"\"",
+                c_call: "ft_putstr(\"\");",
+                expected_sha256: &hex!(
+                    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                ),
+            },
+            TestCase {
+                name: "\"\\x7f\"",
+                c_call: "ft_putstr(\"\\x7f\");",
+                expected_sha256: &hex!(
+                    "620bfdaa346b088fb49998d92f19a7eaf6bfc2fb0aee015753966da1028cb731"
+                ),
+            },
+        ],
+    },
+    // ── ex12 ───────────────────────────────────────────────────────
+    Subject {
+        exercise: "ex12",
+        function: "ft_strlen",
+        c_prototype: "int\tft_strlen(char *str);",
+        files: &["ft_strlen.c"],
+        description: "Return string length.",
+        tests: &[
+            TestCase {
+                name: "\"\"",
+                c_call: "printf(\"%d\", ft_strlen(\"\"));",
+                expected_sha256: &hex!(
+                    "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+                ),
+            },
+            TestCase {
+                name: "\"hello\"",
+                c_call: "printf(\"%d\", ft_strlen(\"hello\"));",
+                expected_sha256: &hex!(
+                    "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d"
+                ),
+            },
+            TestCase {
+                name: "\"\\x7f\"",
+                c_call: "printf(\"%d\", ft_strlen(\"\\x7f\"));",
+                expected_sha256: &hex!(
+                    "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+                ),
+            },
+        ],
+    },
+    // ── ex13 ───────────────────────────────────────────────────────
+    Subject {
+        exercise: "ex13",
+        function: "ft_strcpy",
+        c_prototype: "char\t*ft_strcpy(char *dest, char *src);",
+        files: &["ft_strcpy.c"],
+        description: "Copy a source string into destination.",
+        tests: &[
+            TestCase {
+                name: "\"abc\"",
+                c_call: "char dest[16]; ft_strcpy(dest, \"abc\"); write(1, dest, strlen(dest));",
+                expected_sha256: &hex!(
+                    "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+                ),
+            },
+            TestCase {
+                name: "\"\"",
+                c_call: "char dest[16]; ft_strcpy(dest, \"\"); write(1, dest, strlen(dest));",
+                expected_sha256: &hex!(
+                    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                ),
+            },
+            TestCase {
+                name: "\"\\x7f\"",
+                c_call: "char dest[16]; ft_strcpy(dest, \"\\x7f\"); write(1, dest, 1);",
+                expected_sha256: &hex!(
+                    "620bfdaa346b088fb49998d92f19a7eaf6bfc2fb0aee015753966da1028cb731"
+                ),
+            },
+        ],
+    },
 ];
