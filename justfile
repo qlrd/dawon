@@ -31,6 +31,9 @@ clippy:
 
 check: fmt-check clippy test test-python
 
+coverage:
+    cargo llvm-cov --summary-only
+
 doc:
     cargo doc --no-deps --document-private-items --open
 

@@ -179,6 +179,13 @@ cargo test
 cd tests/python && uv run pytest
 ```
 
+To measure Rust code coverage locally:
+
+```bash
+cargo install cargo-llvm-cov
+just coverage
+```
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
 
 ---
