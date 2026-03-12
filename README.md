@@ -46,9 +46,9 @@ Dawon runs a four-layer check pipeline on each exercise:
 | 3 | Memory | `valgrind --leak-check=full` |
 | 4 | Harness | fork + pipe, SHA-256 output comparison |
 
-The harness tests edge cases moulinette does not: `INT_MIN`,
-null bytes (`'\0'`), DEL (127), and all C(10,3) / C(100,2)
-combinations for `ft_print_comb` / `ft_print_comb2`.
+The harness tests edge cases that moulinette does not reveal
+in advance. Test vectors are stored as SHA-256 commitments —
+no expected outputs appear in this source.
 
 Norminette and forbidden-function checks are handled by
 [monsieur-ganesha](https://github.com/qlrd/monsieur-ganesha)
@@ -152,17 +152,17 @@ enabled).
 
 ### C00
 
-| Exercise | Function | Edge cases |
-|----------|----------|------------|
-| ex00 | `ft_putchar` | null byte, DEL (127) |
-| ex01 | `ft_print_alphabet` | full a–z output |
-| ex02 | `ft_print_reverse_alphabet` | full z–a output |
-| ex03 | `ft_print_numbers` | full 0–9 output |
-| ex04 | `ft_is_negative` | `INT_MIN`, 0, positive |
-| ex05 | `ft_print_comb` | C(10,3) = 120 combinations |
-| ex06 | `ft_print_comb2` | C(100,2) = 4950 pairs |
-| ex07 | `ft_putnbr` | `INT_MIN`, 0, negative, max |
-| ex08 | `ft_print_combn` | n=1 (digits), n=3 (=ft_print_comb) |
+| Exercise | Function |
+|----------|----------|
+| ex00 | `ft_putchar` |
+| ex01 | `ft_print_alphabet` |
+| ex02 | `ft_print_reverse_alphabet` |
+| ex03 | `ft_print_numbers` |
+| ex04 | `ft_is_negative` |
+| ex05 | `ft_print_comb` |
+| ex06 | `ft_print_comb2` |
+| ex07 | `ft_putnbr` |
+| ex08 | `ft_print_combn` |
 
 ### Rush00
 
