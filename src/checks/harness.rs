@@ -34,6 +34,8 @@ use std::process::Command;
 use crate::report::CheckResult;
 use crate::subjects::{Subject, TestCase};
 
+const MAX_DISPLAY_BYTES: usize = 256;
+
 // ── C infrastructure injected into every harness ──────────────────
 //
 // Protocol: for each test the harness writes to stdout —
@@ -238,6 +240,7 @@ fn compare_outputs(
             msgs.push(format!("  PASS  {}", tc.name));
         } else {
             msgs.push(format!("  FAIL  {}", tc.name));
+            msgs.push(format_actual_output(tc.name, output));
         }
     }
 
@@ -253,6 +256,81 @@ fn compare_outputs(
         )))
     } else {
         Ok(CheckResult::fail("Function tests", msgs))
+    }
+}
+
+fn format_actual_output(test_name: &str, output: &[u8]) -> String {
+    let display_len = output.len().min(MAX_DISPLAY_BYTES);
+    let escaped = escape_output_for_display(&output[..display_len]);
+    let truncated = if output.len() > MAX_DISPLAY_BYTES {
+        format!(", truncated to {MAX_DISPLAY_BYTES}")
+    } else {
+        String::new()
+    };
+
+    let len = output.len();
+    let unit = if len == 1 { "byte" } else { "bytes" };
+
+    format!(
+        "        {test_name}: actual: \"{escaped}\" ({len} {unit}{truncated})",
+        len = len,
+        unit = unit,
+    )
+}
+
+fn escape_output_for_display(bytes: &[u8]) -> String {
+    let mut escaped = String::with_capacity(bytes.len().saturating_mul(4));
+
+    for b in bytes {
+        match b {
+            b'"' => escaped.push_str("\\\""),
+            b'\\' => escaped.push_str("\\\\"),
+            0x20..=0x7E => escaped.push(char::from(*b)),
+            _ => {
+                escaped.push('\\');
+                escaped.push('x');
+                escaped.push(to_hex_digit(*b >> 4));
+                escaped.push(to_hex_digit(*b & 0x0F));
+            }
+        }
+    }
+
+    escaped
+}
+
+fn to_hex_digit(nibble: u8) -> char {
+    match nibble {
+        0..=9 => char::from(b'0' + nibble),
+        10..=15 => char::from(b'a' + (nibble - 10)),
+        _ => unreachable!("nibble must be in 0..=15"),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        escape_output_for_display, format_actual_output, MAX_DISPLAY_BYTES,
+    };
+
+    #[test]
+    fn escapes_non_printable_bytes_for_display() {
+        let escaped = escape_output_for_display(b"\0A\n\x7f\\\"");
+        assert_eq!(escaped, "\\x00A\\x0a\\x7f\\\\\\\"");
+    }
+
+    #[test]
+    fn truncates_displayed_output_at_256_bytes() {
+        let bytes = vec![b'a'; MAX_DISPLAY_BYTES + 1];
+        let msg = format_actual_output("probe", &bytes);
+
+        assert!(msg.contains("probe: actual: \""));
+        assert!(msg.contains(&format!(
+            "({} bytes, truncated to {})",
+            MAX_DISPLAY_BYTES + 1,
+            MAX_DISPLAY_BYTES
+        )));
+        assert!(msg.contains(&"a".repeat(MAX_DISPLAY_BYTES)));
+        assert!(!msg.contains(&"a".repeat(MAX_DISPLAY_BYTES + 1)));
     }
 }
 
