@@ -162,6 +162,11 @@ enabled).
 | ex06 | `ft_print_comb2` |
 | ex07 | `ft_putnbr` |
 | ex08 | `ft_print_combn` |
+| ex09 | `ft_display_file` |
+| ex10 | `ft_strdup` |
+| ex11 | `ft_putstr` |
+| ex12 | `ft_strlen` |
+| ex13 | `ft_strcpy` |
 
 ### Rush00
 
