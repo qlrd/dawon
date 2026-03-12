@@ -20,7 +20,7 @@ use cli::{Cli, Command};
 fn main() {
     if let Err(err) = run() {
         eprintln!("{} {}", "error:".red().bold(), err);
-        std::process::exit(2);
+        std::process::exit(1);
     }
 }
 
@@ -160,9 +160,10 @@ mod tests {
 
     #[test]
     fn resolve_target_fails_when_check_path_is_missing() {
+        let missing = PathBuf::from("/definitely/missing/path");
         let args = Cli {
             command: Command::Check {
-                path: PathBuf::from("/definitely/missing/path"),
+                path: missing.clone(),
                 exercise: None,
             },
             rush: false,
@@ -171,7 +172,7 @@ mod tests {
         };
 
         let err = resolve_target(&args).expect_err("missing path should error");
-        assert!(matches!(err, Error::MissingPath { .. }));
+        assert!(matches!(err, Error::MissingPath { path } if path == missing));
     }
 }
 

@@ -34,7 +34,7 @@ pub enum Error {
     },
 
     /// Module path does not exist.
-    #[error("module path not found: {path}")]
+    #[error("module directory does not exist: {path}")]
     MissingPath {
         /// Missing path.
         path: PathBuf,
