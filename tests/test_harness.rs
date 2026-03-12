@@ -114,5 +114,19 @@ fn harness_fails_when_probe_output_is_wrong() {
     let src = write_wrong_probe_impl(tmp.path());
     let result = harness::run(&PROBE_SUBJECT, &[src]).unwrap();
     assert!(!result.is_pass(), "probe should fail with wrong output");
-    assert!(matches!(result.status, CheckStatus::Fail(_)));
+    let CheckStatus::Fail(msgs) = &result.status else {
+        panic!("expected failure messages, got {:?}", result.status);
+    };
+    assert!(msgs.iter().any(|m| m == "  FAIL  'a'"));
+    assert!(
+        msgs.iter()
+            .any(|m| m.contains("'a': actual: \"?\" (1 bytes)")),
+        "missing actual output detail for failing test: {:?}",
+        msgs
+    );
+    assert!(
+        !msgs.iter().any(|m| m.contains("ca978112")),
+        "failure output must not reveal expected hash: {:?}",
+        msgs
+    );
 }
