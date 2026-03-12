@@ -14,9 +14,13 @@ use crate::report::CheckResult;
 ///
 /// Returns `CheckResult::skip` if valgrind is not installed.
 pub fn check(binary: &Path, timeout: Duration) -> CheckResult {
+    check_with_command(binary, timeout, "valgrind")
+}
+
+fn check_with_command(binary: &Path, timeout: Duration, command: &str) -> CheckResult {
     let _ = timeout; // enforced externally via SIGKILL if needed
 
-    let out = match Command::new("valgrind")
+    let out = match Command::new(command)
         .args([
             "--leak-check=full",
             "--show-leak-kinds=all",
@@ -43,5 +47,29 @@ pub fn check(binary: &Path, timeout: Duration) -> CheckResult {
             .map(String::from)
             .collect();
         CheckResult::fail("Valgrind", msgs)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+    use std::time::Duration;
+
+    use super::check_with_command;
+    use crate::report::CheckStatus;
+
+    #[test]
+    fn missing_binary_returns_skip() {
+        let tmp = tempfile::tempdir().expect("tempdir");
+        let target = tmp.path().join("dummy");
+        fs::write(&target, "").expect("write file");
+
+        let result = check_with_command(
+            &target,
+            Duration::from_secs(1),
+            "dawon-definitely-missing-valgrind",
+        );
+
+        assert!(matches!(result.status, CheckStatus::Skipped(_)));
     }
 }
