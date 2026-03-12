@@ -279,18 +279,31 @@ fn format_actual_output(test_name: &str, output: &[u8]) -> String {
 }
 
 fn escape_output_for_display(bytes: &[u8]) -> String {
-    let mut escaped = String::with_capacity(bytes.len());
+    let mut escaped = String::with_capacity(bytes.len().saturating_mul(4));
 
     for b in bytes {
         match b {
             b'"' => escaped.push_str("\\\""),
             b'\\' => escaped.push_str("\\\\"),
             0x20..=0x7E => escaped.push(char::from(*b)),
-            _ => escaped.push_str(&format!("\\x{b:02x}")),
+            _ => {
+                escaped.push('\\');
+                escaped.push('x');
+                escaped.push(to_hex_digit(*b >> 4));
+                escaped.push(to_hex_digit(*b & 0x0F));
+            }
         }
     }
 
     escaped
+}
+
+fn to_hex_digit(nibble: u8) -> char {
+    match nibble {
+        0..=9 => char::from(b'0' + nibble),
+        10..=15 => char::from(b'a' + (nibble - 10)),
+        _ => unreachable!("nibble must be in 0..=15"),
+    }
 }
 
 #[cfg(test)]

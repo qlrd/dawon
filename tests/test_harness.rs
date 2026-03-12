@@ -120,7 +120,7 @@ fn harness_fails_when_probe_output_is_wrong() {
     assert!(msgs.iter().any(|m| m == "  FAIL  'a'"));
     assert!(
         msgs.iter()
-            .any(|m| m.contains("'a': actual: \"?\" (1 bytes)")),
+            .any(|m| m.contains("'a': actual: \"?\" (1 byte)")),
         "missing actual output detail for failing test: {:?}",
         msgs
     );
