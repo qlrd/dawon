@@ -268,9 +268,13 @@ fn format_actual_output(test_name: &str, output: &[u8]) -> String {
         String::new()
     };
 
+    let len = output.len();
+    let unit = if len == 1 { "byte" } else { "bytes" };
+
     format!(
-        "        {test_name}: actual: \"{escaped}\" ({len} bytes{truncated})",
-        len = output.len()
+        "        {test_name}: actual: \"{escaped}\" ({len} {unit}{truncated})",
+        len = len,
+        unit = unit,
     )
 }
 
