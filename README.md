@@ -1,5 +1,17 @@
 # Dawon
 
+[![CI](https://github.com/qlrd/dawon/actions/workflows/ci.yml/badge.svg)](https://github.com/qlrd/dawon/actions/workflows/ci.yml)
+[![Rust 1.85+](https://img.shields.io/badge/rust-1.85%2B-orange)](https://www.rust-lang.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+<p align="center">
+  <img src="assets/dawon.png" alt="Dawon mascot" width="280"/>
+</p>
+
+> She does not move until the tests run.
+
+---
+
 Dawon is a super mini-moulinette for 42 school piscine exercises —
 stricter than mini-moulinette, faster than waiting for the real thing.
 
@@ -8,22 +20,38 @@ vahana of Mahadurga — guardian, merciless, thorough.
 
 ---
 
+## Table of contents
+
+- [What it does](#what-it-does)
+- [Install](#install)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Output](#output)
+- [Subjects](#subjects)
+- [Development](#development)
+- [Relationship to monsieur-ganesha](#relationship-to-monsieur-ganesha)
+- [License](#license)
+
+---
+
 ## What it does
 
-Dawon runs a six-layer check pipeline on each exercise:
+Dawon runs a four-layer check pipeline on each exercise:
 
 | Step | Check | Tool |
 |------|-------|------|
-| 1 | Norminette | `norminette` subprocess |
-| 2 | Symbol present | `libloading` (student `.so`) |
-| 3 | Forbidden functions | regex + `nm -u` symbol table |
-| 4 | Syntax | `cc -Wall -Wextra -Werror -fsyntax-only` |
-| 5 | Harness | fork + pipe, SHA-256 with ASAN/UBSAN |
-| 6 | Memory | `valgrind --leak-check=full` |
+| 1 | Symbol present | `libloading` (student `.so`) |
+| 2 | Build | `cc -Wall -Wextra -Werror` with ASAN/UBSAN |
+| 3 | Memory | `valgrind --leak-check=full` |
+| 4 | Harness | fork + pipe, SHA-256 output comparison |
 
 The harness tests edge cases moulinette does not: `INT_MIN`,
 null bytes (`'\0'`), DEL (127), and all C(10,3) / C(100,2)
 combinations for `ft_print_comb` / `ft_print_comb2`.
+
+Norminette and forbidden-function checks are handled by
+[monsieur-ganesha](https://github.com/qlrd/monsieur-ganesha)
+(the pre-commit hook suite) and are not repeated here.
 
 ---
 
@@ -65,8 +93,8 @@ dawon friend --path /path/to/friend/C00
 ### Flags
 
 ```
---no-sanitizers   skip ASAN/UBSAN (step 5 uses plain cc)
---no-valgrind     skip valgrind (step 6)
+--no-sanitizers   skip ASAN/UBSAN (step 2 uses plain cc)
+--no-valgrind     skip valgrind (step 3)
 --rush            evaluate Rush00 subjects instead of C00
 ```
 
@@ -74,19 +102,16 @@ dawon friend --path /path/to/friend/C00
 
 ## Configuration
 
-Create `.gato.toml` in the module directory to override defaults:
+Create `.dawon.toml` in the module directory to override defaults:
 
 ```toml
-[forbidden]
-functions = ["printf", "malloc", "free"]
-
 [checks]
 no_sanitizers = false
 no_valgrind   = false
 ```
 
-If `.gato.toml` is absent, Dawon uses safe defaults (empty forbidden
-list, all checks enabled).
+If `.dawon.toml` is absent, Dawon uses safe defaults (all checks
+enabled).
 
 ---
 
@@ -104,27 +129,27 @@ list, all checks enabled).
   ex00 — ft_putchar
   Write a function that outputs a char to stdout.
 ────────────────────────────────────────────────────────────
-  [1/6] Norminette                             PASS
-  [2/6] Symbol: ft_putchar                     PASS
-  [3/6] Forbidden functions                    PASS
-  [4/6] Compiler                               PASS
-  [5/6] Harness (ASAN/UBSAN)                   PASS
-  [6/6] Valgrind                               PASS
+  [1/4] Symbol: ft_putchar                     PASS
+  [2/4] Build (ASAN/UBSAN)                     PASS
+  [3/4] Valgrind                               PASS
+  [4/4] Harness                                PASS
 
-  Summary: 6/6 passed
+  Summary: 4/4 passed
 
 ════════════════════════════════════════════════════════════
   GRAND SUMMARY
 ════════════════════════════════════════════════════════════
-  ex00 (ft_putchar)   6/6
+  ex00 (ft_putchar)   4/4
 ════════════════════════════════════════════════════════════
-  6/6 checks passed
+  4/4 checks passed
 ════════════════════════════════════════════════════════════
 ```
 
 ---
 
 ## Subjects
+
+### C00
 
 | Exercise | Function | Edge cases |
 |----------|----------|------------|
@@ -138,11 +163,11 @@ list, all checks enabled).
 | ex07 | `ft_putnbr` | `INT_MIN`, 0, negative, max |
 | ex08 | `ft_print_combn` | n=1 (digits), n=3 (=ft_print_comb) |
 
-Rush00 currently includes:
+### Rush00
 
 | Exercise | Files | Notes |
 |----------|-------|-------|
-| Rush00 | `main.c` | Uses static checks only (no harness vectors yet) |
+| Rush00 | `main.c` | Static checks only (no harness vectors yet) |
 
 ---
 
@@ -152,13 +177,6 @@ Rush00 currently includes:
 cargo build
 cargo test
 cd tests/python && uv run pytest
-```
-
-Fuzz (nightly required):
-
-```bash
-cargo +nightly fuzz run fuzz_forbidden
-cargo +nightly fuzz run fuzz_config
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
@@ -174,21 +192,6 @@ Dawon runs instead.
 
 They are independent binaries. Dawon does not depend on
 monsieur-ganesha and vice versa.
-
----
-
-## Mascot and lore
-
-<p align="center">
-  <img src="assets/dawon.png" alt="Dawon mascot" width="280">
-</p>
-
-**Dawon** sits still and watches. Black ink, full mane, `{}`
-branded on her chest — she does not move until the tests run.
-
-Where Norminette is strict about style, Dawon is strict about
-*correctness* — she does not care how elegant your code looks if
-`INT_MIN` makes it crash.
 
 ---
 
