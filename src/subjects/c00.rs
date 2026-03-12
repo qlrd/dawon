@@ -309,14 +309,14 @@ pub static ALL: &[Subject] = &[
         tests: &[
             TestCase {
                 name: "text file",
-                c_call: "FILE *f = fopen(\"dawon_ex09.txt\", \"w\"); fputs(\"dawon\\n\", f); fclose(f); ft_display_file(\"dawon_ex09.txt\"); unlink(\"dawon_ex09.txt\");",
+                c_call: "FILE *f = fopen(\"dawon_ex09.txt\", \"w\"); if (f) { fputs(\"dawon\\n\", f); fclose(f); ft_display_file(\"dawon_ex09.txt\"); unlink(\"dawon_ex09.txt\"); } else { write(1, \"FOPEN_FAIL\", 10); }",
                 expected_sha256: &hex!(
                     "977911f1488ef55c98e9891a8e5baf2afc72dff6ab71569b5955045ee381e5fc"
                 ),
             },
             TestCase {
                 name: "binary file",
-                c_call: "unsigned char buf[3] = {0x41, 0x00, 0x7F}; FILE *f = fopen(\"dawon_ex09.bin\", \"wb\"); fwrite(buf, 1, 3, f); fclose(f); ft_display_file(\"dawon_ex09.bin\"); unlink(\"dawon_ex09.bin\");",
+                c_call: "unsigned char buf[3] = {0x41, 0x00, 0x7F}; FILE *f = fopen(\"dawon_ex09.bin\", \"wb\"); if (f) { fwrite(buf, 1, 3, f); fclose(f); ft_display_file(\"dawon_ex09.bin\"); unlink(\"dawon_ex09.bin\"); } else { write(1, \"FOPEN_FAIL\", 10); }",
                 expected_sha256: &hex!(
                     "3153013aace69ac4f0660c9b587bcd057f2f70502453654d85d41aa7300fa0da"
                 ),

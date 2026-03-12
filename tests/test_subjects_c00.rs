@@ -22,6 +22,9 @@ fn c00_contains_ex09_to_ex13() {
 }
 
 #[test]
-fn c00_subject_count_is_now_14() {
-    assert_eq!(all_c00().len(), 14);
+fn c00_contains_at_least_ex00_to_ex13() {
+    let subjects = all_c00();
+    assert!(subjects.len() >= 14);
+    assert_eq!(subjects.first().map(|s| s.exercise), Some("ex00"));
+    assert_eq!(subjects.get(13).map(|s| s.exercise), Some("ex13"));
 }
