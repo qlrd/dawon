@@ -5,6 +5,24 @@ repository: code review, chat, agent tasks, and PR generation.
 
 ---
 
+## Companion project
+
+**monsieur-ganesha** (`https://github.com/qlrd/monsieur-ganesha`) is
+the companion pre-commit hook suite for the 42 piscine.  The two
+projects are complementary:
+
+| Tool | Language | Role |
+|------|----------|------|
+| monsieur-ganesha | Python | Pre-commit hooks: norminette, compiler, forbidden functions, commit-message, README |
+| dawon | Rust | Submission evaluator: symbol, build, valgrind, harness (SHA-256) |
+
+When a change in dawon affects the evaluation pipeline, check whether
+the corresponding hook in monsieur-ganesha also needs updating, and
+vice versa.  When opening an issue or PR that spans both repos, link
+them with `Refs qlrd/monsieur-ganesha#N` or `Refs qlrd/dawon#N`.
+
+---
+
 ## Project summary
 
 Dawon is a Rust CLI tool that evaluates student C submissions from
