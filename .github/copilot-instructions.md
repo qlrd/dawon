@@ -116,6 +116,8 @@ If a multi-OS CI matrix is ever added:
   commits — do not bundle a CI fix with unrelated changes)
 - All commits must include `Signed-off-by:` (DCO); Monsieur
   Piscinette signature text is optional for external contributors
+- When force-pushing a branch, always use `--force-with-lease` — never
+  bare `--force`
 
 ---
 
