@@ -38,12 +38,14 @@ def test_check_help(run):
     r = run("check", "--help")
     assert r.returncode == 0
     assert "--path" in r.stdout
+    assert "--module" in r.stdout
 
 
 def test_friend_help(run):
     r = run("friend", "--help")
     assert r.returncode == 0
     assert "--login" in r.stdout or "--path" in r.stdout
+    assert "--module" in r.stdout
 
 
 # ── check subcommand ───────────────────────────────────────────────
@@ -126,6 +128,16 @@ def test_rush_flag_listed_in_help(run):
 
 def test_rush_flag_accepted(run, tmp_path):
     r = run("check", "--path", str(tmp_path), "--rush")
+    assert "unrecognized" not in r.stderr.lower()
+
+
+def test_check_module_flag_accepted(run, tmp_path):
+    r = run("check", "--path", str(tmp_path), "--module", "C01")
+    assert "unrecognized" not in r.stderr.lower()
+
+
+def test_friend_module_flag_accepted(run, tmp_path):
+    r = run("friend", "--path", str(tmp_path), "--module", "C01")
     assert "unrecognized" not in r.stderr.lower()
 
 
