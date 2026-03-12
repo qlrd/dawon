@@ -308,7 +308,9 @@ fn to_hex_digit(nibble: u8) -> char {
 
 #[cfg(test)]
 mod tests {
-    use super::{escape_output_for_display, format_actual_output};
+    use super::{
+        escape_output_for_display, format_actual_output, MAX_DISPLAY_BYTES,
+    };
 
     #[test]
     fn escapes_non_printable_bytes_for_display() {
@@ -318,13 +320,17 @@ mod tests {
 
     #[test]
     fn truncates_displayed_output_at_256_bytes() {
-        let bytes = vec![b'a'; 257];
+        let bytes = vec![b'a'; MAX_DISPLAY_BYTES + 1];
         let msg = format_actual_output("probe", &bytes);
 
         assert!(msg.contains("probe: actual: \""));
-        assert!(msg.contains("(257 bytes, truncated to 256)"));
-        assert!(msg.contains(&"a".repeat(256)));
-        assert!(!msg.contains(&"a".repeat(257)));
+        assert!(msg.contains(&format!(
+            "({} bytes, truncated to {})",
+            MAX_DISPLAY_BYTES + 1,
+            MAX_DISPLAY_BYTES
+        )));
+        assert!(msg.contains(&"a".repeat(MAX_DISPLAY_BYTES)));
+        assert!(!msg.contains(&"a".repeat(MAX_DISPLAY_BYTES + 1)));
     }
 }
 
