@@ -72,7 +72,7 @@ mod tests {
         let tmp = tempfile::tempdir().expect("tempdir");
         let src = tmp.path().join("ok.c");
         let bin = tmp.path().join("ok_bin");
-        fs::write(&src, "int main(void) { return (0); }\n").expect("write C");
+        fs::write(&src, "int main(void) { return 0; }\n").expect("write C");
 
         let result = compile(&[src.as_path()], &bin, false);
 
@@ -85,7 +85,7 @@ mod tests {
         let tmp = tempfile::tempdir().expect("tempdir");
         let src = tmp.path().join("bad.c");
         let bin = tmp.path().join("bad_bin");
-        fs::write(&src, "int main(void) { return ; }\n").expect("write C");
+        fs::write(&src, "int main(void) { return; }\n").expect("write C");
 
         let result = compile(&[src.as_path()], &bin, false);
 
@@ -97,7 +97,7 @@ mod tests {
         let tmp = tempfile::tempdir().expect("tempdir");
         let src = tmp.path().join("ok_obj.c");
         let obj = tmp.path().join("ok_obj.o");
-        fs::write(&src, "int value(void) { return (42); }\n").expect("write C");
+        fs::write(&src, "int value(void) { return 42; }\n").expect("write C");
 
         let result = compile_to_object(&src, &obj);
 

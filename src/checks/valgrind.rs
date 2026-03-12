@@ -17,6 +17,10 @@ pub fn check(binary: &Path, timeout: Duration) -> CheckResult {
     check_with_command(binary, timeout, "valgrind")
 }
 
+/// Run valgrind using an explicit command name.
+///
+/// `command` is injectable so tests can force the "not installed"
+/// path without mutating process-wide `PATH`.
 fn check_with_command(binary: &Path, timeout: Duration, command: &str) -> CheckResult {
     let _ = timeout; // enforced externally via SIGKILL if needed
 
@@ -52,17 +56,15 @@ fn check_with_command(binary: &Path, timeout: Duration, command: &str) -> CheckR
 
 #[cfg(test)]
 mod tests {
-    use std::fs;
     use std::time::Duration;
 
     use super::check_with_command;
     use crate::report::CheckStatus;
 
     #[test]
-    fn missing_binary_returns_skip() {
+    fn missing_valgrind_returns_skip() {
         let tmp = tempfile::tempdir().expect("tempdir");
         let target = tmp.path().join("dummy");
-        fs::write(&target, "").expect("write file");
 
         let result = check_with_command(
             &target,
