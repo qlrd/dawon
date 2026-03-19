@@ -32,7 +32,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use crate::report::CheckResult;
-use crate::subjects::{Subject, TestCase};
+use crate::subjects::{ProgramSubject, Subject, TestCase};
 
 // ── C infrastructure injected into every harness ──────────────────
 //
@@ -253,6 +253,94 @@ fn compare_outputs(
         )))
     } else {
         Ok(CheckResult::fail("Function tests", msgs))
+    }
+}
+
+// ── program runner (C06-style: student provides main) ─────────────
+
+/// Compile and run a program-based exercise against all its test cases.
+///
+/// Compiles the student's source files into `./a.out` inside a temp
+/// directory, then invokes it once per `ProgramTestCase` with the
+/// specified `argv` (prepended with `"./a.out"`).  Each run's stdout
+/// is SHA-256 hashed and compared against the stored commitment.
+///
+/// The binary is named `a.out` and invoked via `./a.out` so that
+/// `argv[0]` is predictable for exercises like `ft_print_program_name`.
+pub fn run_program(
+    subject: &ProgramSubject,
+    source_files: &[PathBuf],
+) -> anyhow::Result<CheckResult> {
+    let tmp = tempfile::TempDir::new()?;
+    let binary = tmp.path().join("a.out");
+
+    let compile_out = Command::new("cc")
+        .args([
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-g",
+        ])
+        .args(source_files)
+        .arg("-o")
+        .arg(&binary)
+        .output()?;
+
+    if !compile_out.status.success() {
+        let msgs: Vec<String> = String::from_utf8_lossy(&compile_out.stderr)
+            .lines()
+            .map(String::from)
+            .collect();
+        return Ok(CheckResult::fail("Program tests (compile)", msgs));
+    }
+
+    let asan_opts = if cfg!(target_os = "linux") {
+        "detect_leaks=1:log_path=/dev/stderr"
+    } else {
+        "log_path=/dev/stderr"
+    };
+
+    let mut msgs: Vec<String> = Vec::new();
+    let mut pass_count = 0usize;
+
+    for tc in subject.tests {
+        let run_out = Command::new("./a.out")
+            .current_dir(tmp.path())
+            .args(tc.argv)
+            .env("ASAN_OPTIONS", asan_opts)
+            .env("UBSAN_OPTIONS", "print_stacktrace=1")
+            .output()?;
+
+        let stderr_text = String::from_utf8_lossy(&run_out.stderr);
+        let asan_errors: Vec<String> = stderr_text
+            .lines()
+            .filter(|l| l.contains("ERROR") || l.contains("runtime error"))
+            .map(String::from)
+            .collect();
+
+        if !asan_errors.is_empty() {
+            msgs.push(format!("  FAIL  {} — ASAN/UBSAN error", tc.name));
+            msgs.extend(asan_errors);
+            continue;
+        }
+
+        let hash = Sha256::digest(&run_out.stdout);
+        if hash.as_slice() == tc.expected_sha256.as_slice() {
+            pass_count += 1;
+            msgs.push(format!("  PASS  {}", tc.name));
+        } else {
+            msgs.push(format!("  FAIL  {}", tc.name));
+        }
+    }
+
+    let all_pass = msgs.iter().all(|l| l.trim_start().starts_with("PASS"));
+    if all_pass && pass_count > 0 {
+        Ok(CheckResult::pass(format!(
+            "Program tests ({pass_count} passed)"
+        )))
+    } else {
+        Ok(CheckResult::fail("Program tests", msgs))
     }
 }
 

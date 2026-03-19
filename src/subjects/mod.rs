@@ -4,6 +4,7 @@
 //! generate the C test harness and run every check.
 
 pub mod c00;
+pub mod c06;
 pub mod rush00;
 
 /// A single test case for a C function.
@@ -49,4 +50,38 @@ pub fn all_c00() -> &'static [Subject] {
 /// All Rush00 subjects, in order.
 pub fn all_rush() -> &'static [Subject] {
     rush00::ALL
+}
+
+// ── Program-based subjects (argc/argv, student provides main) ──────
+
+/// A single test case for a program that receives command-line arguments.
+pub struct ProgramTestCase {
+    /// Human-readable label shown in PASS/FAIL output.
+    pub name: &'static str,
+    /// Arguments passed after `argv[0]` (`./a.out`).
+    /// Empty slice means the program is invoked with no extra args.
+    pub argv: &'static [&'static str],
+    /// SHA-256 commitment of the expected stdout bytes.
+    ///
+    /// Computed with `printf 'expected' | sha256sum`.
+    pub expected_sha256: &'static [u8; 32],
+}
+
+/// One 42-school piscine exercise whose entry point is `main`.
+pub struct ProgramSubject {
+    /// Folder name, e.g. `"ex00"`.
+    pub exercise: &'static str,
+    /// Program name, e.g. `"ft_print_program_name"`.
+    pub program: &'static str,
+    /// Source files the student must provide (relative to exercise dir).
+    pub files: &'static [&'static str],
+    /// One-line description shown in the TUI and boomer CLI.
+    pub description: &'static str,
+    /// Test vectors for the program runner.
+    pub tests: &'static [ProgramTestCase],
+}
+
+/// All C06 subjects, in order.
+pub fn all_c06() -> &'static [ProgramSubject] {
+    c06::ALL
 }
