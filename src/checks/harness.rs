@@ -31,6 +31,7 @@ use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use crate::error::Result;
 use crate::report::CheckResult;
 use crate::subjects::{Subject, TestCase};
 
@@ -143,7 +144,7 @@ pub fn generate(subject: &Subject, tests: &[TestCase]) -> String {
 ///
 /// Returns a `CheckResult` describing which test cases passed/failed
 /// and whether any ASAN/UBSAN violations were detected.
-pub fn run(subject: &Subject, source_files: &[PathBuf]) -> anyhow::Result<CheckResult> {
+pub fn run(subject: &Subject, source_files: &[PathBuf]) -> Result<CheckResult> {
     let tmp = tempfile::TempDir::new()?;
 
     let harness_path = tmp.path().join("dawon_harness.c");
@@ -194,11 +195,7 @@ pub fn run(subject: &Subject, source_files: &[PathBuf]) -> anyhow::Result<CheckR
 /// each captured output with SHA-256, and compares against the
 /// commitment stored in each `TestCase`. Expected bytes never appear
 /// in this function — only the hash comparison result.
-fn compare_outputs(
-    stdout: &[u8],
-    stderr: &[u8],
-    tests: &[TestCase],
-) -> anyhow::Result<CheckResult> {
+fn compare_outputs(stdout: &[u8], stderr: &[u8], tests: &[TestCase]) -> Result<CheckResult> {
     // Detect ASAN/UBSAN errors in stderr first
     let stderr_text = String::from_utf8_lossy(stderr);
     let asan_errors: Vec<String> = stderr_text
