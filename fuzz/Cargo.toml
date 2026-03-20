@@ -19,6 +19,12 @@ path = "fuzz_targets/fuzz_forbidden.rs"
 test = false
 doc = false
 
+[[bin]]
+name = "fuzz_c06_compiler"
+path = "fuzz_targets/fuzz_c06_compiler.rs"
+test = false
+doc = false
+
 [dependencies]
 libfuzzer-sys = "0.4"
 dawon = { path = ".." }

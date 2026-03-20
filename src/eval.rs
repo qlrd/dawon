@@ -6,7 +6,7 @@ use std::time::Duration;
 use crate::checks::{compiler, harness, valgrind};
 use crate::config::Config;
 use crate::report::{CheckResult, SuiteResult};
-use crate::subjects::Subject;
+use crate::subjects::{ProgramSubject, Subject};
 
 /// Resolve every required source file inside *exercise_dir*.
 /// Returns `None` (with the list of missing files) if any are absent.
@@ -114,6 +114,97 @@ pub fn run(subject: &Subject, exercise_dir: &Path, cfg: &Config) -> SuiteResult 
     SuiteResult {
         exercise: subject.exercise.to_string(),
         function: subject.function.to_string(),
+        checks,
+    }
+}
+
+/// Locate source files for a program-based subject.
+pub fn locate_program_files(
+    subject: &ProgramSubject,
+    exercise_dir: &Path,
+) -> Result<Vec<PathBuf>, Vec<String>> {
+    let mut paths = Vec::new();
+    let mut missing = Vec::new();
+    for &file in subject.files {
+        let p = exercise_dir.join(file);
+        if p.exists() {
+            paths.push(p);
+        } else {
+            missing.push(format!("missing: {file}"));
+        }
+    }
+    if missing.is_empty() {
+        Ok(paths)
+    } else {
+        Err(missing)
+    }
+}
+
+/// Run the full check suite for a program-based subject (C06-style).
+///
+/// Skips the symbol check and function harness — uses `harness::run_program`
+/// instead, which compiles the student binary and spawns it with test argv.
+pub fn run_program(subject: &ProgramSubject, exercise_dir: &Path, cfg: &Config) -> SuiteResult {
+    let mut checks: Vec<CheckResult> = Vec::new();
+
+    let source_files = match locate_program_files(subject, exercise_dir) {
+        Ok(f) => f,
+        Err(missing) => {
+            checks.push(CheckResult::fail("Files present", missing));
+            return SuiteResult {
+                exercise: subject.exercise.to_string(),
+                function: subject.program.to_string(),
+                checks,
+            };
+        }
+    };
+    let source_paths: Vec<&Path> = source_files.iter().map(PathBuf::as_path).collect();
+
+    checks.push(CheckResult::skip(
+        "Symbol check",
+        "not applicable for program-based exercises",
+    ));
+
+    // Build with ASAN/UBSAN
+    let tmp = match tempfile::TempDir::new() {
+        Ok(t) => t,
+        Err(e) => {
+            checks.push(CheckResult::error("Build", e.to_string()));
+            return SuiteResult {
+                exercise: subject.exercise.to_string(),
+                function: subject.program.to_string(),
+                checks,
+            };
+        }
+    };
+
+    let sanitize = !cfg.checks.no_sanitizers;
+    let binary = tmp.path().join("student_bin");
+    let build_res = compiler::compile(&source_paths, &binary, sanitize);
+    let build_ok = build_res.is_pass();
+    checks.push(build_res);
+
+    if build_ok && !cfg.checks.no_valgrind {
+        checks.push(valgrind::check(&binary, std::time::Duration::from_secs(10)));
+    }
+
+    if build_ok {
+        if subject.tests.is_empty() {
+            checks.push(CheckResult::skip(
+                "Program tests",
+                "no test vectors defined for this subject",
+            ));
+        } else {
+            match harness::run_program(subject, &source_files) {
+                Ok(r) => checks.push(r),
+                Err(e) => checks.push(CheckResult::error("Program tests", e.to_string())),
+            }
+        }
+    }
+
+    SuiteResult {
+        exercise: subject.exercise.to_string(),
+        function: subject.program.to_string(),
         checks,
     }
 }
