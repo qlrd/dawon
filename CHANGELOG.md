@@ -42,6 +42,9 @@ and this project adheres to
   subjects.
 - Subjects: initial Rush00 support (`Rush00/main.c`) with shared
   static checks (norminette, forbidden scan, compiler, valgrind).
+- Subjects: C00 coverage extended with ex09–ex13
+  (`ft_display_file`, `ft_strdup`, `ft_putstr`, `ft_strlen`,
+  `ft_strcpy`) and SHA-256 harness vectors.
 
 - CI: ubuntu-latest, macos-latest, debian-stable (stable +
   MSRV 1.85); Valgrind gated to Linux.
