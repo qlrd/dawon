@@ -1,0 +1,76 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: create release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2.3.3
+        with:
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+
+  build:
+    name: build / ${{ matrix.asset }}
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            asset: dawon-linux-x86_64
+            use_cross: true
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+            asset: dawon-linux-aarch64
+            use_cross: true
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            asset: dawon-macos-x86_64
+            use_cross: false
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            asset: dawon-macos-aarch64
+            use_cross: false
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@4305c38b25d97ef35a8ad1f985ccf2d2242004f2 # stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+
+      - name: Install cross
+        if: matrix.use_cross
+        run: cargo install --locked cross
+
+      - name: Build release binary
+        run: |
+          if [ "${{ matrix.use_cross }}" = "true" ]; then
+            cross build --release --target "${{ matrix.target }}"
+          else
+            cargo build --release --target "${{ matrix.target }}"
+          fi
+
+      - name: Prepare release asset
+        run: cp "target/${{ matrix.target }}/release/dawon" "${{ matrix.asset }}"
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2.3.3
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: ${{ matrix.asset }}
+          fail_on_unmatched_files: true
