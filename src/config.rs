@@ -4,6 +4,8 @@ use std::path::{Path, PathBuf};
 
 use serde::Deserialize;
 
+use crate::error::{Error, Result};
+
 pub const CONFIG_FILE: &str = ".dawon.toml";
 
 #[derive(Debug, Deserialize, Default)]
@@ -31,13 +33,12 @@ pub struct ChecksConfig {
 }
 
 /// Load `.dawon.toml` from *root*, returning defaults if absent.
-pub fn load(root: &Path) -> anyhow::Result<Config> {
+pub fn load(root: &Path) -> Result<Config> {
     let path: PathBuf = root.join(CONFIG_FILE);
     if !path.exists() {
         return Ok(Config::default());
     }
     let raw = std::fs::read_to_string(&path)?;
-    let cfg: Config =
-        toml::from_str(&raw).map_err(|e| anyhow::anyhow!("invalid {CONFIG_FILE}: {e}"))?;
+    let cfg: Config = toml::from_str(&raw).map_err(|source| Error::InvalidConfig { source })?;
     Ok(cfg)
 }
