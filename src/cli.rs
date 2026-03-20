@@ -52,6 +52,10 @@ pub enum Command {
         #[arg(short, long, value_name = "DIR")]
         path: PathBuf,
 
+        /// Module to evaluate (C00..C08). Defaults to C00.
+        #[arg(short, long, default_value = "C00")]
+        module: String,
+
         /// Run only this exercise, e.g. ex04.  Runs all if omitted.
         #[arg(short, long)]
         exercise: Option<String>,
@@ -71,9 +75,9 @@ pub enum Command {
         #[arg(short, long)]
         path: Option<PathBuf>,
 
-        /// Module name, e.g. C00.  Required with --login.
-        #[arg(short, long)]
-        module: Option<String>,
+        /// Module to evaluate (C00..C08). Defaults to C00.
+        #[arg(short, long, default_value = "C00")]
+        module: String,
 
         /// Run only this exercise.
         #[arg(short, long)]
@@ -96,10 +100,30 @@ mod tests {
     }
 
     #[test]
+    fn parse_check_module_default() {
+        let cli = Cli::parse_from(["dawon", "check", "--path", "/tmp/C00"]);
+
+        match cli.command {
+            Command::Check { module, .. } => assert_eq!(module, "C00"),
+            _ => panic!("expected check command"),
+        }
+    }
+
+    #[test]
     fn parse_friend_rush_flag() {
         let cli = Cli::parse_from(["dawon", "--rush", "friend", "--path", "/tmp/Rush00"]);
 
         assert!(cli.rush);
         assert!(matches!(cli.command, Command::Friend { .. }));
+    }
+
+    #[test]
+    fn parse_friend_module_default() {
+        let cli = Cli::parse_from(["dawon", "friend", "--path", "/tmp/C00"]);
+
+        match cli.command {
+            Command::Friend { module, .. } => assert_eq!(module, "C00"),
+            _ => panic!("expected friend command"),
+        }
     }
 }
