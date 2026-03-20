@@ -21,7 +21,7 @@ fn main() -> anyhow::Result<()> {
 
     print_banner();
 
-    let (module_path, exercise_filter, label) = resolve_target(&args)?;
+    let (module_path, module_name, exercise_filter, label) = resolve_target(&args)?;
 
     // Load .dawon.toml if present
     let mut cfg = config::load(&module_path)?;
@@ -32,11 +32,18 @@ fn main() -> anyhow::Result<()> {
         cfg.checks.no_valgrind = true;
     }
 
-    let subjects = if args.rush {
-        subjects::all_rush()
+    let selected_module = if args.rush {
+        "Rush00".to_string()
     } else {
-        subjects::all_c00()
+        module_name
     };
+    let subjects = subjects::from_module(&selected_module).ok_or_else(|| {
+        anyhow::anyhow!(
+            "unsupported module '{}'; expected C00..C08{}",
+            selected_module,
+            if args.rush { ", or Rush00" } else { "" }
+        )
+    })?;
 
     let to_run: Vec<&Subject> = subjects
         .iter()
@@ -87,23 +94,33 @@ fn main() -> anyhow::Result<()> {
 
 // ── target resolution ──────────────────────────────────────────────
 
-fn resolve_target(args: &Cli) -> anyhow::Result<(PathBuf, Option<String>, String)> {
+fn resolve_target(args: &Cli) -> anyhow::Result<(PathBuf, String, Option<String>, String)> {
     match &args.command {
-        Command::Check { path, exercise } => {
-            Ok((path.clone(), exercise.clone(), "myself".to_string()))
-        }
+        Command::Check {
+            path,
+            module,
+            exercise,
+        } => Ok((
+            path.clone(),
+            module.clone(),
+            exercise.clone(),
+            "myself".to_string(),
+        )),
         Command::Friend {
             login,
             path,
             module,
             exercise,
         } => {
+            let module_name = module.clone();
             let resolved = if let Some(p) = path {
                 p.clone()
             } else if let Some(login) = login {
-                let m = module.as_deref().unwrap_or("C00");
-                eval::find_friend_path(login, m).ok_or_else(|| {
-                    anyhow::anyhow!("cannot find {login}/{m} — use --path to specify directly")
+                eval::find_friend_path(login, &module_name).ok_or_else(|| {
+                    anyhow::anyhow!(
+                        "cannot find {login}/{} — use --path to specify directly",
+                        module_name
+                    )
                 })?
             } else {
                 anyhow::bail!("friend: provide --login or --path");
@@ -112,7 +129,7 @@ fn resolve_target(args: &Cli) -> anyhow::Result<(PathBuf, Option<String>, String
                 .as_deref()
                 .map(|l| format!("friend:{l}"))
                 .unwrap_or_else(|| "friend".to_string());
-            Ok((resolved, exercise.clone(), label))
+            Ok((resolved, module_name, exercise.clone(), label))
         }
     }
 }
